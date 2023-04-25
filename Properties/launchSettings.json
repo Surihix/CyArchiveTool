@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CyArchiveTool": {
+      "commandName": "Project",
+      "commandLineArgs": "-d \"001.pack\""
+    }
+  }
+}
