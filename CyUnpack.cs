@@ -77,6 +77,7 @@ namespace CyArchiveTool
             }          
         }
 
+
         static void ExtensionCheck(FileStream streamNameVar, ref string fExtnVar)
         {
             using (BinaryReader dcmpOutFileReader = new(streamNameVar))

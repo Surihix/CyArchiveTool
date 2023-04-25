@@ -2,7 +2,7 @@
   "profiles": {
     "CyArchiveTool": {
       "commandName": "Project",
-      "commandLineArgs": "-d \"001.pack\""
+      "commandLineArgs": "-c \"001\" \"001.pack\" "
     }
   }
 }

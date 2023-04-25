@@ -54,9 +54,11 @@ namespace CyArchiveTool
                             logProcess.Close();
                             CmnMethods.ErrorExit("One or more files missing in the extracted folder");
                         }
-                        Console.WriteLine("Finished checking files");
+
+                        Console.WriteLine("Finished checking extracted files");
                         Console.WriteLine("");
-                        Console.WriteLine("");
+                        Thread.Sleep(1000);
+
 
                         using (MemoryStream fileInfoStream = new())
                         {
