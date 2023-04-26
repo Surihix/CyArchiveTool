@@ -1,6 +1,6 @@
 # CyArchiveTool
 
-This tool allows you to unpack and repack the .pack files that are present inside the cygames folder in the PC version of Zone of Enders 2. with this tool, you can extract all of the files that are present inside the .pack file as well as repack the same extracted .pack file.
+This tool allows you to unpack and repack the .pack archive files that are present inside the cygames folder in the PC version of Zone of Enders 2 MARS. with this tool, you can extract all of the files that are present inside the .pack file as well as repack the same extracted .pack file.
 
 Use the following commands with this tool:
 <br>For unpacking a .pack file: ```CyArchiveTool -d "fileName.pack" ```
