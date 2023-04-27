@@ -12,7 +12,7 @@
 | 0x10 | 0x4  | UInt32 | total offsets that are populated between 0x20 till the FileCount offset |
 | 0x14 | 0xC | UInt32[3] | Reserved, always null |
 
-The offset value at 0x10 can be divided by 2 to get the total number of files.
+The offset value at 0x10 can be divided by 2 to get the file count.
 <br>The section between 0x20 till the file count offset most probably contains hashed filenames.
 <br>The file table begins 16 bytes after the file count offset.
 
