@@ -28,4 +28,4 @@ The offset value at 0x10 can be divided by 2 to get the file count.
 | 0x14 | 0xE0 | Unknown | Unknown, bytes are always the same length |
 | 0xE0 | 0xC | UInt32[3] | Reserved, always null |
 
-The Compression used is raw lz4. use the decompression library linked in the main readme document to decompress the data.
+The compression used is raw lz4. use the decompression library linked in the main readme document to decompress the data.
