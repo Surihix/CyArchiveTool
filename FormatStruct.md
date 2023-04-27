@@ -1,6 +1,6 @@
 ## Format Structure
 
-**Important:** The format is not fully parsed and the byte values would have to be read in Little Endian
+**Important:** The format is not fully parsed and the byte values would have to be read in Little Endian.
 
 #### Header Section
 | Offset | Size | Type | Description |
