@@ -13,4 +13,4 @@ Use the following commands with this tool:
 ## For Developers:
 The following package was used for lz4 compression and decompression:
 <br>**K4os.Compression.LZ4** - https://www.nuget.org/packages/K4os.Compression.LZ4
-<br><br>You can also refer to the format structure of the .pack file from [here](FormatStruct.md).
+<br><br>Refer to the format structure of the .pack file from [here](FormatStruct.md).
