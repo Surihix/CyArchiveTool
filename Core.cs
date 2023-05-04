@@ -24,13 +24,14 @@ try
 {
     if (args.Length < 2)
     {
-        CmnMethods.ErrorExit("Enough arguments not specified");
+        Console.WriteLine("Enough arguments not specified");
+        Help.ShowAppCommands();
     }
 
     var specifiedAction = args[0].Replace("-", "");
     var inFileFolder = args[1];
 
-    var toolAction = ToolActionSwitches.d;
+    var toolAction = ToolActionSwitches.u;
     if (Enum.TryParse(specifiedAction, false, out ToolActionSwitches convertedToolAction))
     {
         toolAction = convertedToolAction;
@@ -42,7 +43,13 @@ try
 
     switch (toolAction)
     {
-        case ToolActionSwitches.c:
+        case ToolActionSwitches.u:
+            CmnMethods.FileFolderExistsCheck(inFileFolder, CmnMethods.ExistsCheckType.file);
+            CyUnpack.DecompressArchive(inFileFolder);
+            ValidityCheck(inFileFolder);
+            break;
+
+        case ToolActionSwitches.r:
             if (args.Length < 3)
             {
                 CmnMethods.ErrorExit("pack file to repack is not specified in the argument. specify this file along with the extracted folder");
@@ -52,12 +59,6 @@ try
             CmnMethods.FileFolderExistsCheck(inPackFile, CmnMethods.ExistsCheckType.file);
             ValidityCheck(inPackFile);
             CyRepack.CompressArchive(inFileFolder, inPackFile);
-            break;
-
-        case ToolActionSwitches.d:
-            CmnMethods.FileFolderExistsCheck(inFileFolder, CmnMethods.ExistsCheckType.file);
-            CyUnpack.DecompressArchive(inFileFolder);
-            ValidityCheck(inFileFolder);
             break;
     }
 }
@@ -75,6 +76,6 @@ catch (Exception ex)
 
 enum ToolActionSwitches
 {
-    c,
-    d
+    u,
+    r,    
 }

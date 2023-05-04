@@ -3,6 +3,9 @@
     "CyArchiveTool": {
       "commandName": "Project",
       "commandLineArgs": "-c \"001\" \"001.pack\" "
+    },
+    "help_test": {
+      "commandName": "Project"
     }
   }
 }
