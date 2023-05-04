@@ -12,10 +12,8 @@
 | 0x10 | 0x4  | UInt32 | total offsets that are populated between 0x20 till the FileCount offset |
 | 0x14 | 0xC | UInt32[3] | Reserved, always null |
 
-The offset value at 0x10 can be divided by 2 to get the total filecount.
-<br>The section between 0x20 till the file count offset most probably contains hashed filenames.
-<br>The file table begins 16 bytes after the file count offset.
-
+The file table begins 12 bytes after the file count offset.
+<br>
 
 #### File table section
 | Offset | Size | Type | Description |
@@ -28,4 +26,7 @@ The offset value at 0x10 can be divided by 2 to get the total filecount.
 | 0x14 | 0xE0 | Unknown | Unknown, bytes are always the same length in other pack files too |
 | 0xE0 | 0xC | UInt32[3] | Reserved, always null |
 
-The compression used is raw lz4. use the library linked in the main readme document to decompress and compress the data.
+### Notes
+- The compression used is raw lz4. use the library linked in the main readme document to decompress and compress the data.
+- The offset value at 0x10 can be divided by 2 to get the total filecount.
+- The section between 0x20 till the file count offset most probably contains hashed filenames.
