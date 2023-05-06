@@ -7,7 +7,7 @@ namespace CyArchiveTool
     {
         public static void CompressArchive(string inFolderVar, string inPackFileVar)
         {
-            var extractedDir = Path.GetFileNameWithoutExtension(inFolderVar);
+            var extractedDir = inFolderVar + "\\";
             string[] extractedDirToCheck = Directory.GetFiles(inFolderVar, "*.*", SearchOption.TopDirectoryOnly);
 
             CmnMethods.FileExistsDel("ProcessLog.txt");
@@ -20,7 +20,7 @@ namespace CyArchiveTool
                 var finalPackedFile = inPackFileVar + ".new";
 
                 CmnMethods.FileExistsDel(finalPackedFile);
-                CmnMethods.FileExistsDel(extractedDir + "\\" + "_tempPacked.bin");
+                CmnMethods.FileExistsDel(extractedDir + "_tempPacked.bin");
 
                 using (FileStream oldPackFileStream = new(inPackFileVar, FileMode.Open, FileAccess.Read))
                 {
@@ -71,7 +71,7 @@ namespace CyArchiveTool
                             {
                                 using (FileStream newPackFile = new(finalPackedFile, FileMode.OpenOrCreate, FileAccess.Write))
                                 {
-                                    using (FileStream tempDataPackFile = new(extractedDir + "\\" + "_tempPacked.bin", FileMode.Append, FileAccess.Write))
+                                    using (FileStream tempDataPackFile = new(extractedDir + "_tempPacked.bin", FileMode.Append, FileAccess.Write))
                                     {
 
                                         var fCount = 1;
@@ -87,12 +87,12 @@ namespace CyArchiveTool
 
                                                 if (currentFile.Equals("FILE_" + fCount))
                                                 {
-                                                    File.Copy(f, extractedDir + "\\" + currentFile);
+                                                    File.Copy(f, extractedDir + currentFile);
 
                                                     fPos = (uint)tempDataPackFile.Length;
-                                                    fActualSize = (uint)new FileInfo(extractedDir + "\\" + currentFile).Length;
+                                                    fActualSize = (uint)new FileInfo(extractedDir + currentFile).Length;
 
-                                                    var source = File.ReadAllBytes(extractedDir + "\\FILE_" + fCount);
+                                                    var source = File.ReadAllBytes(extractedDir + "FILE_" + fCount);
                                                     var cmpTarget = new byte[fActualSize];
                                                     var decompress = LZ4Codec.Encode(source, cmpTarget, LZ4Level.L00_FAST);
 
@@ -103,7 +103,7 @@ namespace CyArchiveTool
                                                     AdjustBytesUInt32(fileInfoWriter, fileInfoWriterPos + 8, fActualSize);
                                                     AdjustBytesUInt32(fileInfoWriter, fileInfoWriterPos + 12, fPos);
 
-                                                    File.Delete(extractedDir + "\\" + currentFile);
+                                                    File.Delete(extractedDir + currentFile);
                                                     Console.WriteLine("Repacked " + currentFile);
                                                     logProcess.WriteLine("Repacked " + currentFile);
 
@@ -132,7 +132,7 @@ namespace CyArchiveTool
                                     fileInfoStream.Seek(0, SeekOrigin.Begin);
                                     fileInfoStream.CopyTo(newPackFile);
 
-                                    using (FileStream repackedData = new(extractedDir + "\\" + "_tempPacked.bin", FileMode.Open, FileAccess.Read))
+                                    using (FileStream repackedData = new(extractedDir + "_tempPacked.bin", FileMode.Open, FileAccess.Read))
                                     {
                                         repackedData.Seek(0, SeekOrigin.Begin);
                                         repackedData.CopyTo(newPackFile);
@@ -143,11 +143,11 @@ namespace CyArchiveTool
                     }
                 }
 
-                File.Delete(extractedDir + "\\" + "_tempPacked.bin");
+                File.Delete(extractedDir + "_tempPacked.bin");
 
                 Console.WriteLine("");
-                Console.WriteLine("Finished repacking files to " + finalPackedFile);
-                logProcess.WriteLine("\nFinished repacking files to " + finalPackedFile);
+                Console.WriteLine("Finished repacking files to " + Path.GetFileName(finalPackedFile));
+                logProcess.WriteLine("\nFinished repacking files to " + Path.GetFileName(finalPackedFile));
 
                 Console.ReadLine();
             }

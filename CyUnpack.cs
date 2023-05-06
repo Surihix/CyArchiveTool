@@ -17,7 +17,10 @@ namespace CyArchiveTool
                 {
                     using (BinaryReader packFileReader = new(packFileStream))
                     {
-                        var extractDir = Path.GetFileNameWithoutExtension(inFileVar);
+                        var packFilePath = Path.GetFullPath(inFileVar);
+                        var packFileFolder = Path.GetDirectoryName(packFilePath);
+                        var extractDir = packFileFolder + "\\" + Path.GetFileNameWithoutExtension(inFileVar);
+
                         if (Directory.Exists(extractDir))
                         {
                             Directory.Delete(extractDir, true);
