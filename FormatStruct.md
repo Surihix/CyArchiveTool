@@ -2,31 +2,47 @@
 
 **Important:** The format is not fully parsed and the byte values would have to be read in Little Endian.
 
-#### Header Section
+### Header Section
 | Offset | Size | Type | Description |
 | --- | --- | --- | --- |
 | 0x0 | 0x4  | String | ZPAC, header |
-| 0x4 | 0x4 | UInt32 | Unknown, same value in other pack files too |
-| 0x8 | 0x4 | UInt32 | Unknown, same value in other pack files too |
-| 0xC | 0x4 | UInt32 | FileCount offset |
-| 0x10 | 0x4  | UInt32 | total offsets that are populated between 0x20 till the FileCount offset |
-| 0x14 | 0xC | UInt32[3] | Reserved, always null |
+| 0x4 | 0x4 | UInt32 | Unknown, always 0x1 and same value in all .pack files |
+| 0x8 | 0x4 | UInt32 | Header size, always 0x10 and same value in all pack files |
+| 0xC | 0x4 | UInt32 | FileTable section offset |
 
-The file table begins 12 bytes after the file count offset.
-<br>
 
-#### File table section
+### UnkTable Section
+| 0x00 | 0x4  | UInt32 | UnkTable Entry Count |
+| 0x4 | 0xC | UInt32[3] | Reserved, always null |
+<br> The UnkTable Entries begins immediately after the above offsets and each entry is 0x8 bytes in length.
+
+#### UnkTable Entry
+| Offset | Size | Type | Description |
+| --- | --- | --- | --- |
+| 0x0 | 0x4 | UInt32 | Some sort of hash, sometimes null |
+| 0x4 | 0x1 | UInt8 | Unknown flag, always 0x10 and sometimes null |
+| 0x5 | 0x1 | UInt8 | Unknown flag 2, sometimes null |
+| 0x6 | 0x1 | UInt8 | Unknown flag 3, sometimes null |
+| 0x7 | 0x1 | UInt8 | Unknown flag 4, sometimes null |
+
+
+### FileTable Section
+| Offset | Size | Type | Description |
+| --- | --- | --- | --- |
+| 0x0 | 0x4 | UInt32 | File count, number of files in the .pack file |
+| 0x4 | 0xC | UInt32[3] | Reserved, always null |
+<br> The File Entries begins immediately after the above offsets and each entry is 0x100 bytes in length.
+
+#### File Entry
 | Offset | Size | Type | Description |
 | --- | --- | --- | --- |
 | 0x0 | 0x4 | UInt32 | Compressed data size |
 | 0x4 | 0x4 | UInt32 | Unknown |
 | 0x8 | 0x4 | UInt32 | Uncompressed data size |
 | 0xC | 0x4 | UInt32 | Data start position, relative |
-| 0x10 | 0x4 | UInt32 | Unknown, value is always 1 in other .pack files too |
-| 0x14 | 0xE0 | Unknown | Unknown, bytes are always the same length in other pack files too |
+| 0x10 | 0x4 | UInt32 | Unknown 2, value is 1 in all .pack files |
+| 0x14 | 0xE0 | UInt32[56] | Hash or encrypted filename, same size in all .pack files |
 | 0xE0 | 0xC | UInt32[3] | Reserved, always null |
 
 ### Notes
 - The compression used is raw lz4. use the library linked in the main readme document to decompress and compress the data.
-- The offset value at 0x10 can be divided by 2 to get the total filecount.
-- The section between 0x20 till the file count offset most probably contains hashed filenames.
