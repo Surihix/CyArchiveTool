@@ -12,8 +12,11 @@
 
 
 ### UnkTable Section
+| Offset | Size | Type | Description |
+| --- | --- | --- | --- |
 | 0x00 | 0x4  | UInt32 | UnkTable Entry Count |
 | 0x4 | 0xC | UInt32[3] | Reserved, always null |
+
 <br> The UnkTable Entries begins immediately after the above offsets and each entry is 0x8 bytes in length.
 
 #### UnkTable Entry
@@ -31,6 +34,7 @@
 | --- | --- | --- | --- |
 | 0x0 | 0x4 | UInt32 | File count, number of files in the .pack file |
 | 0x4 | 0xC | UInt32[3] | Reserved, always null |
+
 <br> The File Entries begins immediately after the above offsets and each entry is 0x100 bytes in length.
 
 #### File Entry
