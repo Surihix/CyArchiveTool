@@ -26,7 +26,7 @@
 | 0x6 | 0x1 | UInt8 | Unknown flag 3, sometimes null |
 | 0x7 | 0x1 | UInt8 | Unknown flag 4, sometimes null |
 
-<br> The FileTable section begins immediately after the last UnkTable Entry.
+<br> The FileTable section begins immediately after the last UnkTable Entry and the position should match with the FileTable section offset in the header.
 
 
 ### FileTable Section
