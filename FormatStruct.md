@@ -14,10 +14,8 @@
 ### UnkTable Section
 | Offset | Size | Type | Description |
 | --- | --- | --- | --- |
-| 0x00 | 0x4  | UInt32 | UnkTable Entry Count |
+| 0x00 | 0x4  | UInt32 | UnkTable Entry Count, dividing this value by 2 should return the File Count |
 | 0x4 | 0xC | UInt32[3] | Reserved, always null |
-
-<br> The UnkTable Entries begins immediately after the above offsets and each entry is 0x8 bytes in length.
 
 #### UnkTable Entry
 | Offset | Size | Type | Description |
@@ -28,14 +26,14 @@
 | 0x6 | 0x1 | UInt8 | Unknown flag 3, sometimes null |
 | 0x7 | 0x1 | UInt8 | Unknown flag 4, sometimes null |
 
+<br> The FileTable section begins immediately after the last UnkTable Entry.
+
 
 ### FileTable Section
 | Offset | Size | Type | Description |
 | --- | --- | --- | --- |
 | 0x0 | 0x4 | UInt32 | File count, number of files in the .pack file |
 | 0x4 | 0xC | UInt32[3] | Reserved, always null |
-
-<br> The File Entries begins immediately after the above offsets and each entry is 0x100 bytes in length.
 
 #### File Entry
 | Offset | Size | Type | Description |
@@ -48,5 +46,5 @@
 | 0x14 | 0xE0 | UInt32[56] | Hash or encrypted filename, same size in all .pack files |
 | 0xE0 | 0xC | UInt32[3] | Reserved, always null |
 
-### Notes
+#### Notes
 - The compression used is raw lz4. use the library linked in the main readme document to decompress and compress the data.
