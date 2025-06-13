@@ -13,7 +13,9 @@ This small program allows you to unpack and repack the .pack archive files that 
 
 - One big limitation with this tool is that it cannot unpack the files with proper filenames and folders, due to them being either hashed or encrypted somewhere. so each unpacked file will be named in a numerical order, with the word `FILE_` prefixed before the number in the filename.
 
-- When repacking a file, you would have to provide the old .pack file along with the extracted folder name. the extracted folder should contain all the files and even if one file is missing, this tool will not repack the pack file. if the repacking succeeds, then you will get a new pack file with the .new extension. rename the file to .pack and use that with the game.
+- When repacking a file, you would have to provide the old .pack file along with the extracted folder name. the extracted folder should contain all the files and even if one file is missing, this tool will not repack the pack file.
+
+- If the repacking succeeds, then you a new .pack file with .new extension will be created. you can take a backup of the old .pack file or just delete it and rename the .new file to .pack file.
 
 - Do note that this file format is not fully analysed and just with the limited amount of info that this tool works with, there were no issues seen in the game when it was launched with a .pack file that was repacked with this tool. 
 
