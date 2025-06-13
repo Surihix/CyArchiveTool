@@ -1,14 +1,21 @@
 # CyArchiveTool
 
-This tool allows you to unpack and repack the .pack archive files that are present inside the cygames folder in the PC version of Zone of Enders 2 MARS. with this tool, you can extract all of the files that are present inside the .pack file as well as repack the same extracted .pack file.
+This small program allows you to unpack and repack the .pack archive files that are present inside the cygames folder in the PC version of Zone of Enders 2 MARS. the program should be launched from command prompt with a few argument switches to perform a function. the list of valid argument switches are given below:
 
-Use the following commands with this tool:
-<br>For unpacking a .pack file: ```CyArchiveTool -u "fileName.pack" ```
-<br>For repacking a .pack file: ```CyArchiveTool -r "extractedFolderName" "oldPackfileName.pack" ```
+<br>**Tool actions:**
+<br>``-u`` Unpack all files stored in a pac file
+<br>``-r`` Repack a folder containing valid extracted files into a pac file
+<br>``-?`` or ``-h`` Display the help page
+<br>
 
-<br>**Note:** On repacking a file, you would have to provide the old .pack file along with the extracted folder name. the extracted folder should contain all the files and even if one file is missing, this tool will not repack the file. after the repacking succeeds, you will get a new pack file with the .new extension. rename the file to .pack and use that with the game.
-<br><br>
-**Limitations:** Do note that this file format is not fully analysed and just with the limited amount of info that this tool works with, there were no issues seen in the game when it was launched with a .pack file that was repacked with this tool. one big limitation is that this tool cannot extract the files with proper filenames and folders as they are either hashed or encrypted somewhere. you would have to manually check each extracted file from the .pack file to locate a file that you are interested in. 
+## Important notes
+- You can run the program with just the `-?` or `-h` switches. for example `CyArchiveTool -?`
+
+- One big limitation with this tool is that it cannot unpack the files with proper filenames and folders, due to them being either hashed or encrypted somewhere. so each unpacked file will be named in a numerical order, with the word `FILE_` prefixed before the number in the filename.
+
+- When repacking a file, you would have to provide the old .pack file along with the extracted folder name. the extracted folder should contain all the files and even if one file is missing, this tool will not repack the pack file. if the repacking succeeds, then you will get a new pack file with the .new extension. rename the file to .pack and use that with the game.
+
+- Do note that this file format is not fully analysed and just with the limited amount of info that this tool works with, there were no issues seen in the game when it was launched with a .pack file that was repacked with this tool. 
 
 ## For Developers:
 The following package was used for lz4 compression and decompression:
