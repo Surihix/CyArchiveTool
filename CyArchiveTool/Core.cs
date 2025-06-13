@@ -10,9 +10,12 @@
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
                 // Parse args
-                if (args.Length == 1 && args[0].Contains("-h") || args[0].Contains("-?"))
+                if (args.Length == 1)
                 {
-                    Help.ShowAppCommands();
+                    if (args[0].Contains("-h") || args[0].Contains("-?"))
+                    {
+                        Help.ShowAppCommands();
+                    }
                 }
 
                 if (args.Length < 2)

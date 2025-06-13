@@ -1,8 +1,7 @@
 {
   "profiles": {
     "CyArchiveTool": {
-      "commandName": "Project",
-      "commandLineArgs": "-r \"G:\\Steam Library Games\\steamapps\\common\\ZONE OF THE ENDERS THE 2nd RUNNER MARS ANUBIS ZONE OF THE ENDERS MARS\\cygames\\008\" \"G:\\Steam Library Games\\steamapps\\common\\ZONE OF THE ENDERS THE 2nd RUNNER MARS ANUBIS ZONE OF THE ENDERS MARS\\cygames\\008.pack\""
+      "commandName": "Project"
     }
   }
 }
