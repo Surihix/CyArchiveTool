@@ -9,7 +9,7 @@ This small program allows you to unpack and repack the .pack archive files that 
 <br>
 
 ## Important notes
-- You can run the program with just the `-?` or `-h` switches. for example `CyArchiveTool -?`
+- To display the help page, run the program with either the `-?` or `-h` switches. for example `CyArchiveTool -?`
 
 - One big limitation with this tool is that it cannot unpack the files with proper filenames and folders, due to them being either hashed or encrypted somewhere. so each unpacked file will be named in a numerical order, with the word `FILE_` prefixed before the number in the filename.
 
