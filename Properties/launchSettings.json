@@ -1,7 +1,8 @@
 {
   "profiles": {
     "CyArchiveTool": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-uwp \"S:\\For research\\ZOE 2\\cygames pack files extracted (win version)\\006.pack\""
     }
   }
 }

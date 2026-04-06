@@ -33,9 +33,14 @@
                 switch (toolActionSwitch)
                 {
                     case ToolActionSwitches.u:
-                        CmnMethods.FileFolderExistsCheck(args[1], CmnMethods.ExistsCheckType.file);
-                        ValidityCheck(args[1]);
-                        CyUnpack.DecompressArchive(args[1]);
+                        ZPACUnpack.UnpackPackFile(args[1]);
+                        //CmnMethods.FileFolderExistsCheck(args[1], CmnMethods.CheckType.file);
+                        //ValidityCheck(args[1]);
+                        //CyUnpack.DecompressArchive(args[1]);
+                        break;
+
+                    case ToolActionSwitches.uwp:
+                        ZPACUnpack.UnpackPackFile(args[1], true);
                         break;
 
                     case ToolActionSwitches.r:
@@ -43,10 +48,19 @@
                         {
                             CmnMethods.ErrorExit("Warning: Enough arguments not specified for this action. Please use -? or -h switches for more information!");
                         }
-                        CmnMethods.FileFolderExistsCheck(args[1], CmnMethods.ExistsCheckType.folder);
-                        CmnMethods.FileFolderExistsCheck(args[2], CmnMethods.ExistsCheckType.file);
-                        ValidityCheck(args[2]);
-                        CyRepack.CompressArchive(args[1], args[2]);
+                        ZPACRepack.RepackPackFile(args[1], args[2]);
+                        //CmnMethods.FileFolderExistsCheck(args[1], CmnMethods.CheckType.folder);
+                        //CmnMethods.FileFolderExistsCheck(args[2], CmnMethods.CheckType.file);
+                        //ValidityCheck(args[2]);
+                        //CyRepack.CompressArchive(args[1], args[2]);
+                        break;
+
+                    case ToolActionSwitches.rwp:
+                        if (args.Length < 3)
+                        {
+                            CmnMethods.ErrorExit("Warning: Enough arguments not specified for this action. Please use -? or -h switches for more information!");
+                        }
+                        ZPACRepack.RepackPackFile(args[1], args[2], true);
                         break;
                 }
             }
@@ -65,7 +79,9 @@
         enum ToolActionSwitches
         {
             u,
+            uwp,
             r,
+            rwp
         }
 
 

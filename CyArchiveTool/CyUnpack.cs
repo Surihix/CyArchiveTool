@@ -33,7 +33,7 @@ namespace CyArchiveTool
 
                         var readValueStartPos = fileCountPos + 16;
                         var dataSectionStartPos = (totalFileCount * 256) + fileCountPos + 16;
-                        uint fCount = 1;
+                        uint fCount = 0;
                         for (int i = 0; i < totalFileCount; i++)
                         {
                             CmnMethods.ReadBytesUInt32(packFileReader, readValueStartPos, out uint cmpFileSize);

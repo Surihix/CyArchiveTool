@@ -9,18 +9,18 @@
             Environment.Exit(0);
         }
 
-        public static void FileFolderExistsCheck(string inFileOrFolderVar, ExistsCheckType existsCheckTypeVar)
+        public static void FileFolderExistsCheck(string inFileOrFolderVar, CheckType existsCheckTypeVar)
         {
             switch (existsCheckTypeVar)
             {
-                case ExistsCheckType.file:
+                case CheckType.file:
                     if (!File.Exists(inFileOrFolderVar))
                     {
                         ErrorExit("Specified file does not exist");
                     }
                     break;
 
-                case ExistsCheckType.folder:
+                case CheckType.folder:
                     if (!Directory.Exists(inFileOrFolderVar))
                     {
                         ErrorExit("Specified directory does not exist");
@@ -29,7 +29,7 @@
             }
         }
 
-        public enum ExistsCheckType
+        public enum CheckType
         {
             file,
             folder

@@ -74,7 +74,7 @@ namespace CyArchiveTool
                                     using (FileStream tempDataPackFile = new(extractedDir + "_tempPacked.bin", FileMode.Append, FileAccess.Write))
                                     {
 
-                                        var fCount = 1;
+                                        var fCount = 0;
                                         uint fPos = 0;
                                         uint fCmpSize = 0;
                                         uint fActualSize = 0;
