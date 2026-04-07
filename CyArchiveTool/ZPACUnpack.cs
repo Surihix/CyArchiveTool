@@ -15,6 +15,9 @@ namespace CyArchiveTool
 
             if (Directory.Exists(unpackDir))
             {
+                Console.WriteLine("Detected previous unpack. deleting....");
+                Console.WriteLine("");
+
                 Directory.Delete(unpackDir, true);
             }
 
@@ -68,21 +71,31 @@ namespace CyArchiveTool
                         var cmpData = packFileReader.ReadBytes(fileTable[i].CmpSize);
                         var dcmpData = ZPACHelpers.UncompressLZ4Data(cmpData, fileTable[i].UncmpSize);
 
-                        string vPath;
+                        var vPath = $"FILE_{i}";
                         var fileExtn = ZPACHelpers.GetExtension(dcmpData);
 
                         if (usePaths)
                         {
-                            vPath = filePaths[i].Replace("/", "\\");
+                            vPath = filePaths[i];
 
-                            if (vPath.StartsWith("FILE_"))
+                            if (!vPath.StartsWith("FILE_"))
                             {
-                                vPath += fileExtn;
+                                var isValid = ZPACFileLoader.ValidatePathFromHashTable(vPath, i);
+
+                                if (isValid)
+                                {
+                                    vPath = filePaths[i].Replace("/", "\\");
+                                }
+                                else
+                                {
+                                    vPath = $"FILE_{i}";
+                                }
                             }
                         }
-                        else
+
+                        if (vPath.StartsWith("FILE_"))
                         {
-                            vPath = $"FILE_{i}{fileExtn}";
+                            vPath += fileExtn;
                         }
 
                         packFilePathsWriter.WriteLine($"FILE_{i} >> {vPath}");
