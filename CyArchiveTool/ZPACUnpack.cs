@@ -112,7 +112,7 @@ namespace CyArchiveTool
 
                         Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}");
                         Console.WriteLine($"Compressed size: {fileTable[i].CmpSize}");
-                        Console.WriteLine($"nUncompressed size: {fileTable[i].UncmpSize}");
+                        Console.WriteLine($"Uncompressed size: {fileTable[i].UncmpSize}");
                         Console.WriteLine("");
                     }
                 }
