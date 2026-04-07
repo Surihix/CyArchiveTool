@@ -48,9 +48,12 @@ namespace CyArchiveTool
         public static byte[] CompressLZ4Data(byte[] dataToCmp, int dataSize)
         {
             var cmpData = new byte[dataSize];
-            LZ4Codec.Encode(dataToCmp, cmpData, LZ4Level.L00_FAST);
+            var cmpSize = LZ4Codec.Encode(dataToCmp, cmpData, LZ4Level.L00_FAST);
 
-            return cmpData;
+            var cmpDataFixed = new byte[cmpSize];
+            Array.ConstrainedCopy(cmpData, 0, cmpDataFixed, 0, cmpSize);
+
+            return cmpDataFixed;
         }
     }
 }
