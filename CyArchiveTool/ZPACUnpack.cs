@@ -1,5 +1,4 @@
 ﻿using CyArchiveTool.Support;
-using static CyArchiveTool.Support.Structures;
 
 namespace CyArchiveTool
 {
@@ -30,7 +29,7 @@ namespace CyArchiveTool
                 SharedFunctions.ErrorExit($"Unable to locate '{packFileName}_paths.txt' file. please use the normal -u function!");
             }
 
-            string[] filePaths = new string[] { };
+            string[] filePaths = Array.Empty<string>();
 
             if (usePaths)
             {
@@ -42,16 +41,9 @@ namespace CyArchiveTool
             Console.WriteLine("Loading pack file....");
             Console.WriteLine("");
 
-            var packHeader = new PackHeader();
-            var hashTableHeader = new HashTableHeader();
-            var hashTable = new HashTableEntry[] { };
-            var fileTableHeader = new FileTableHeader();
-            var fileTable = new FileTableEntry[] { };
-            long fileDataPos = 0;
+            var zpacLoadData = ZPACFileLoader.LoadPackFile(packFile);
 
-            ZPACFileLoader.LoadPackFile(packFile, packHeader, hashTableHeader, ref hashTable, fileTableHeader, ref fileTable, ref fileDataPos);
-
-            if (usePaths && filePaths.Length != fileTableHeader.FileCount)
+            if (usePaths && filePaths.Length != zpacLoadData.FileEntryTableHeader.FileCount)
             {
                 SharedFunctions.ErrorExit($"'{packFileName}_paths.txt' file doesn't contain all the filepaths. please use the normal -u function!");
             }
@@ -60,16 +52,16 @@ namespace CyArchiveTool
 
             using (var packFileReader = new BinaryReader(new FileStream(packFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
-                _ = packFileReader.BaseStream.Position = fileDataPos;
+                _ = packFileReader.BaseStream.Position = zpacLoadData.DataStartOffset;
 
                 using (var packFilePathsWriter = new StreamWriter(packPathsMappingFile, true))
                 {
-                    for (int i = 0; i < fileTableHeader.FileCount; i++)
+                    for (int i = 0; i < zpacLoadData.FileEntryTableHeader.FileCount; i++)
                     {
-                        _ = packFileReader.BaseStream.Position = fileDataPos + fileTable[i].DataOffset;
+                        _ = packFileReader.BaseStream.Position = zpacLoadData.DataStartOffset + zpacLoadData.FileEntryTable[i].DataOffset;
 
-                        var cmpData = packFileReader.ReadBytes(fileTable[i].CmpSize);
-                        var dcmpData = ZPACHelpers.UncompressLZ4Data(cmpData, fileTable[i].UncmpSize);
+                        var cmpData = packFileReader.ReadBytes(zpacLoadData.FileEntryTable[i].CmpSize);
+                        var dcmpData = ZPACHelpers.UncompressLZ4Data(cmpData, zpacLoadData.FileEntryTable[i].UncmpSize);
 
                         var vPath = $"FILE_{i}";
                         var fileExtn = ZPACHelpers.GetExtension(dcmpData);
@@ -80,7 +72,7 @@ namespace CyArchiveTool
 
                             if (!vPath.StartsWith("FILE_"))
                             {
-                                var isValid = ZPACFileLoader.ValidatePathFromHashTable(vPath, i);
+                                var isValid = ZPACFileLoader.ValidatePath(vPath, i, zpacLoadData.HashEntryTable, zpacLoadData.HashEntryTableHeader.HashEntryCount);
 
                                 if (isValid)
                                 {
@@ -111,8 +103,8 @@ namespace CyArchiveTool
                         File.WriteAllBytes(outFile, dcmpData);
 
                         Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}");
-                        Console.WriteLine($"Compressed size: {fileTable[i].CmpSize}");
-                        Console.WriteLine($"Uncompressed size: {fileTable[i].UncmpSize}");
+                        Console.WriteLine($"Compressed size: {zpacLoadData.FileEntryTable[i].CmpSize}");
+                        Console.WriteLine($"Uncompressed size: {zpacLoadData.FileEntryTable[i].UncmpSize}");
                         Console.WriteLine("");
                     }
                 }

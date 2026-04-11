@@ -1,6 +1,5 @@
 ﻿using CyArchiveTool.Support;
 using System.Text;
-using static CyArchiveTool.Support.Structures;
 
 namespace CyArchiveTool
 {
@@ -25,14 +24,7 @@ namespace CyArchiveTool
             Console.WriteLine("Loading pack file....");
             Console.WriteLine("");
 
-            var packHeader = new PackHeader();
-            var hashTableHeader = new HashTableHeader();
-            var hashTable = new HashTableEntry[] { };
-            var fileTableHeader = new FileTableHeader();
-            var fileTable = new FileTableEntry[] { };
-            long fileDataPos = 0;
-
-            ZPACFileLoader.LoadPackFile(packFile, packHeader, hashTableHeader, ref hashTable, fileTableHeader, ref fileTable, ref fileDataPos);
+            var zpacLoadData = ZPACFileLoader.LoadPackFile(packFile);
 
             var newPackFile = packFile + ".new";
             SharedFunctions.IfFileExistsDel(newPackFile);
@@ -43,7 +35,7 @@ namespace CyArchiveTool
             var packDataFile = packFile + "_data";
             SharedFunctions.IfFileExistsDel(packDataFile);
 
-            if (filePaths.Length != fileTableHeader.FileCount)
+            if (filePaths.Length != zpacLoadData.FileEntryTableHeader.FileCount)
             {
                 SharedFunctions.ErrorExit($"'{packFileName}_paths.txt' file doesn't contain all the filepaths!");
             }
@@ -53,31 +45,31 @@ namespace CyArchiveTool
             var headerData = new byte[16];
             using (var headerWriter = new BinaryWriter(new MemoryStream(headerData)))
             {
-                headerWriter.Write(Encoding.ASCII.GetBytes(packHeader.Magic));
-                headerWriter.Write(BitConverter.GetBytes(packHeader.UnkVal));
-                headerWriter.Write(BitConverter.GetBytes(packHeader.HashTableOffset));
-                headerWriter.Write(BitConverter.GetBytes(packHeader.FileTableOffset));
+                headerWriter.Write(Encoding.ASCII.GetBytes(zpacLoadData.ZPACHeader.Magic));
+                headerWriter.Write(BitConverter.GetBytes(zpacLoadData.ZPACHeader.UnkVal));
+                headerWriter.Write(BitConverter.GetBytes(zpacLoadData.ZPACHeader.HashTableOffset));
+                headerWriter.Write(BitConverter.GetBytes(zpacLoadData.ZPACHeader.FileTableOffset));
             }
 
-            var hashTableData = new byte[(int)(hashTableHeader.HashTableEntryCount * 8) + 16];
-            using (var hashTableWriter = new BinaryWriter(new MemoryStream(hashTableData)))
+            var hashEntryTableData = new byte[(int)(zpacLoadData.HashEntryTableHeader.HashEntryCount * 8) + 16];
+            using (var hashEntryTableWriter = new BinaryWriter(new MemoryStream(hashEntryTableData)))
             {
-                hashTableWriter.Write(BitConverter.GetBytes(hashTableHeader.HashTableEntryCount));
-                hashTableWriter.Write(hashTableHeader.Reserved);
+                hashEntryTableWriter.Write(BitConverter.GetBytes(zpacLoadData.HashEntryTableHeader.HashEntryCount));
+                hashEntryTableWriter.Write(zpacLoadData.HashEntryTableHeader.Reserved);
 
-                for (int i = 0; i < hashTableHeader.HashTableEntryCount; i++)
+                for (int i = 0; i < zpacLoadData.HashEntryTableHeader.HashEntryCount; i++)
                 {
-                    hashTableWriter.Write(BitConverter.GetBytes(hashTable[i].StrCode32Hash));
-                    hashTableWriter.Write(hashTable[i].UnkFlag);
-                    hashTableWriter.Write(BitConverter.GetBytes(hashTable[i].FileIndex));
-                    hashTableWriter.Write(hashTable[i].Reserved);
+                    hashEntryTableWriter.Write(BitConverter.GetBytes(zpacLoadData.HashEntryTable[i].StrCode32Hash));
+                    hashEntryTableWriter.Write(zpacLoadData.HashEntryTable[i].UnkFlag);
+                    hashEntryTableWriter.Write(BitConverter.GetBytes(zpacLoadData.HashEntryTable[i].FileIndex));
+                    hashEntryTableWriter.Write(zpacLoadData.HashEntryTable[i].Reserved);
                 }
             }
 
             using (var newPackWriter = new FileStream(newPackFile, FileMode.Append, FileAccess.Write))
             {
                 newPackWriter.Write(headerData);
-                newPackWriter.Write(hashTableData);
+                newPackWriter.Write(hashEntryTableData);
                 newPackWriter.Write(BitConverter.GetBytes(fileTableHeader.FileCount));
                 newPackWriter.Write(fileTableHeader.Reserved);
 

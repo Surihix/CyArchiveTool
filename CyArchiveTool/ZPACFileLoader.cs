@@ -1,47 +1,68 @@
 ﻿using CyArchiveTool.Support;
+using CyArchiveTool.Support.Structures;
 using System.Text;
-using static CyArchiveTool.Support.Structures;
 
 namespace CyArchiveTool
 {
     internal class ZPACFileLoader
     {
-        private static HashTableEntry[]? ZPACHashTable { get; set; }
-        public static void LoadPackFile(string packFile, PackHeader packHeader, HashTableHeader hashTableHeader, ref HashTableEntry[] hashTable, FileTableHeader fileTableHeader, ref FileTableEntry[] fileTable, ref long fileDataPos)
+        public static ZPACLoadData LoadPackFile(string packFile)
         {
+            var zpacLoadData = new ZPACLoadData();
+
             using (var packFileReader = new BinaryReader(new FileStream(packFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
-                packHeader.Magic = Encoding.ASCII.GetString(packFileReader.ReadBytes(4));
+                var zpacHeader = new ZPACHeader
+                {
+                    Magic = Encoding.ASCII.GetString(packFileReader.ReadBytes(4))
+                };
 
-                if (packHeader.Magic != "ZPAC")
+                if (zpacHeader.Magic != "ZPAC")
                 {
                     SharedFunctions.ErrorExit("This is not a valid ZOE2 MARS .pack archive file");
                 }
 
-                packHeader.UnkVal = packFileReader.ReadUInt32();
-                packHeader.HashTableOffset = packFileReader.ReadUInt32();
-                packHeader.FileTableOffset = packFileReader.ReadUInt32();
+                zpacHeader.UnkVal = packFileReader.ReadUInt32();
+                zpacHeader.HashTableOffset = packFileReader.ReadUInt32();
+                zpacHeader.FileTableOffset = packFileReader.ReadUInt32();
 
-                _ = packFileReader.BaseStream.Position = packHeader.HashTableOffset;
-                LoadHashTable(hashTableHeader, ref hashTable, packFileReader);
-                Console.WriteLine($"HashTableEntry Count: {hashTableHeader.HashTableEntryCount}");
+                _ = packFileReader.BaseStream.Position = zpacHeader.HashTableOffset;
+                var hashEntryTableHeader = new HashEntryTableHeader
+                {
+                    HashEntryCount = packFileReader.ReadUInt32(),
+                    Reserved = packFileReader.ReadBytes(12)
+                };
 
-                _ = packFileReader.BaseStream.Position = packHeader.FileTableOffset;
-                LoadFileTable(fileTableHeader, ref fileTable, packFileReader, ref fileDataPos);
-                Console.WriteLine($"File Count: {fileTableHeader.FileCount}");
+                var hashEntryTable = LoadHashEntryTable(hashEntryTableHeader, packFileReader);
+                Console.WriteLine($"HashTableEntry Count: {hashEntryTableHeader.HashEntryCount}");
+
+                _ = packFileReader.BaseStream.Position = zpacHeader.FileTableOffset;
+                var fileEntryTableHeader = new FileEntryTableHeader()
+                {
+                    FileCount = packFileReader.ReadUInt32(),
+                    Reserved = packFileReader.ReadBytes(12)
+                };
+                var fileEntryTable = LoadFileEntryTable(fileEntryTableHeader, packFileReader);
+                Console.WriteLine($"File Count: {fileEntryTableHeader.FileCount}");
+
+                zpacLoadData.ZPACHeader = zpacHeader;
+                zpacLoadData.HashEntryTableHeader = hashEntryTableHeader;
+                zpacLoadData.HashEntryTable = hashEntryTable;
+                zpacLoadData.FileEntryTableHeader = fileEntryTableHeader;
+                zpacLoadData.FileEntryTable = fileEntryTable;
+                zpacLoadData.DataStartOffset = packFileReader.BaseStream.Position;
             }
+
+            return zpacLoadData;
         }
 
-        private static void LoadHashTable(HashTableHeader hashTableHeader, ref HashTableEntry[] hashTable, BinaryReader packFileReader)
+        private static HashEntry[] LoadHashEntryTable(HashEntryTableHeader hashTableHeader, BinaryReader packFileReader)
         {
-            hashTableHeader.HashTableEntryCount = packFileReader.ReadUInt32();
-            hashTableHeader.Reserved = packFileReader.ReadBytes(12);
-            hashTable = new HashTableEntry[hashTableHeader.HashTableEntryCount];
-            ZPACHashTable = new HashTableEntry[hashTableHeader.HashTableEntryCount];
+            var hashEntryTable = new HashEntry[hashTableHeader.HashEntryCount];
 
-            for (int i = 0; i < hashTableHeader.HashTableEntryCount; i++)
+            for (int i = 0; i < hashTableHeader.HashEntryCount; i++)
             {
-                var currentHashTableEntry = new HashTableEntry()
+                var currentHashTableEntry = new HashEntry()
                 {
                     StrCode32Hash = packFileReader.ReadUInt32(),
                     UnkFlag = packFileReader.ReadByte(),
@@ -49,20 +70,19 @@ namespace CyArchiveTool
                     Reserved = packFileReader.ReadByte()
                 };
 
-                hashTable[i] = currentHashTableEntry;
-                ZPACHashTable[i] = currentHashTableEntry;
+                hashEntryTable[i] = currentHashTableEntry;
             }
+
+            return hashEntryTable;
         }
 
-        private static void LoadFileTable(FileTableHeader fileTableHeader, ref FileTableEntry[] fileTable, BinaryReader packFileReader, ref long fileDataPos)
+        private static FileEntry[] LoadFileEntryTable(FileEntryTableHeader fileTableHeader, BinaryReader packFileReader)
         {
-            fileTableHeader.FileCount = packFileReader.ReadUInt32();
-            fileTableHeader.Reserved = packFileReader.ReadBytes(12);
-            fileTable = new FileTableEntry[fileTableHeader.FileCount];
+            var fileEntryTable = new FileEntry[fileTableHeader.FileCount];
 
             for (int i = 0; i < fileTableHeader.FileCount; i++)
             {
-                var fileTableEntry = new FileTableEntry()
+                var fileEntry = new FileEntry()
                 {
                     CmpSize = packFileReader.ReadInt32(),
                     UnkVal = packFileReader.ReadUInt32(),
@@ -73,26 +93,21 @@ namespace CyArchiveTool
                     Reserved = packFileReader.ReadBytes(12)
                 };
 
-                fileTable[i] = fileTableEntry;
+                fileEntryTable[i] = fileEntry;
             }
 
-            fileDataPos = packFileReader.BaseStream.Position;
+            return fileEntryTable;
         }
 
-        public static bool ValidatePathFromHashTable(string vPath, int fileIndex)
+        public static bool ValidatePath(string vPath, int fileIndex, HashEntry[] hashEntryTable, uint hashEntryCount)
         {
             var isValid = false;
 
-            if (ZPACHashTable != null && ZPACHashTable.Length == 0)
+            for (int i = 0; i < hashEntryCount; i++)
             {
-                SharedFunctions.ErrorExit("Path validation failed as hash table was not loaded properly!");
-            }
-
-            for (int i = 0; i < ZPACHashTable.Length; i++)
-            {
-                if (ZPACHashTable[i].StrCode32Hash != 0 && ZPACHashTable[i].FileIndex == fileIndex)
+                if (hashEntryTable[i].StrCode32Hash != 0 && hashEntryTable[i].FileIndex == fileIndex)
                 {
-                    if (StrCode32(vPath) == ZPACHashTable[i].StrCode32Hash)
+                    if (StrCode32(vPath) == hashEntryTable[i].StrCode32Hash)
                     {
                         return true;
                     }
