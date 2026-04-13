@@ -1,0 +1,8 @@
+cygames/parameter/alpha_glare_param.lst
+cygames/parameter/dog_param.lst
+cygames/parameter/fog_param.lst
+cygames/parameter/polydemo_range.bin
+cygames/parameter/stage_param.lst
+cygames/parameter/story_settings_ps4.csv
+cygames/parameter/story_settings_win.csv
+cygames/parameter/yebis_param.lst

@@ -22,4 +22,8 @@
     <PackageReference Include="K4os.Compression.LZ4" Version="1.3.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="pack_paths_E.F.G.I.J.S\" />
+  </ItemGroup>
+
 </Project>
