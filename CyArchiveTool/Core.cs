@@ -34,6 +34,14 @@ namespace CyArchiveTool
                     Help.ShowAppCommands();
                 }
 
+                if (toolActionSwitch == ToolActionSwitches.uwp || toolActionSwitch == ToolActionSwitches.r)
+                {
+                    if (args.Length < 3)
+                    {
+                        SharedFunctions.ErrorExit("Warning: Enough arguments not specified for this action. Please use -? or -h switches for more information!");
+                    }
+                }
+
                 switch (toolActionSwitch)
                 {
                     case ToolActionSwitches.u:
@@ -41,14 +49,10 @@ namespace CyArchiveTool
                         break;
 
                     case ToolActionSwitches.uwp:
-                        ZPACUnpack.UnpackPackFile(args[1], true);
+                        ZPACUnpack.UnpackPackFile(args[1], true, args[2]);
                         break;
 
                     case ToolActionSwitches.r:
-                        if (args.Length < 3)
-                        {
-                            SharedFunctions.ErrorExit("Warning: Enough arguments not specified for this action. Please use -? or -h switches for more information!");
-                        }
                         ZPACRepack.RepackPackFile(args[1], args[2]);
                         break;
                 }
@@ -69,8 +73,7 @@ namespace CyArchiveTool
         {
             u,
             uwp,
-            r,
-            rwp
+            r
         }
     }
 }

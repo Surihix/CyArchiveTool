@@ -6,7 +6,6 @@ namespace CyArchiveTool
 {
     internal class ZPACFileLoader
     {
-        private static Encoding? ShiftJISEncoding = CodePagesEncodingProvider.Instance.GetEncoding(932);
         public static ZPACLoadData LoadPackFile(string packFile)
         {
             var zpacLoadData = new ZPACLoadData();
@@ -45,6 +44,7 @@ namespace CyArchiveTool
                 };
                 var fileEntryTable = LoadFileEntryTable(fileEntryTableHeader, packFileReader);
                 Console.WriteLine($"File Count: {fileEntryTableHeader.FileCount}");
+                Console.WriteLine("");
 
                 zpacLoadData.ZPACHeader = zpacHeader;
                 zpacLoadData.HashEntryTableHeader = hashEntryTableHeader;
@@ -98,45 +98,6 @@ namespace CyArchiveTool
             }
 
             return fileEntryTable;
-        }
-
-        public static bool ValidatePath(string vPath, int fileIndex, HashEntry[]? hashEntryTable, uint hashEntryCount)
-        {
-            var isValid = false;
-
-            for (int i = 0; i < hashEntryCount; i++)
-            {
-                if (hashEntryTable[i].StrCode32Hash != 0 && hashEntryTable[i].FileIndex == fileIndex)
-                {
-                    if (StrCode32(vPath) == hashEntryTable[i].StrCode32Hash)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return isValid;
-        }
-
-        private static uint StrCode32(string stringVal)
-        {
-            var stringBytes = ShiftJISEncoding.GetBytes(stringVal);
-            uint c = stringBytes[0];
-            int n = 0;
-            uint id = 0;
-
-            for (int i = 0; i < stringBytes.Length; i++)
-            {
-                c = stringBytes[i];
-                id += ((id << (int)(c & 0x0F)) | ((id >> 3) + (c << (n & 0x0F)) + c));
-                n++;
-            }
-
-            return id;
         }
     }
 }

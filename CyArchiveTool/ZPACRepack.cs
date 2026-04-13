@@ -7,16 +7,16 @@ namespace CyArchiveTool
     {
         public static void RepackPackFile(string packFile, string unpackedDir)
         {
-            var packFileDir = Path.GetDirectoryName(packFile);
             var packFileName = Path.GetFileNameWithoutExtension(packFile);
 
+            SharedFunctions.CheckIfFileFolderExists(packFile, Enumerators.CheckType.file);
             SharedFunctions.CheckIfFileFolderExists(unpackedDir, Enumerators.CheckType.folder);
 
             var packPathsMappingFile = Path.Combine(unpackedDir, "##path_mappings.txt");
 
             if (!File.Exists(packPathsMappingFile))
             {
-                SharedFunctions.ErrorExit($"Unable to locate '##path_mappings.txt' file!");
+                SharedFunctions.ErrorExit($"Unable to locate '##path_mappings.txt' file inside unpacked folder!");
             }
 
             var filePaths = File.ReadAllLines(packPathsMappingFile);
@@ -45,8 +45,6 @@ namespace CyArchiveTool
             {
                 SharedFunctions.ErrorExit($"'{packFileName}_paths.txt' file doesn't contain all the filepaths!");
             }
-
-            Console.WriteLine("");
 
             var headerData = new byte[16];
             using (var headerWriter = new BinaryWriter(new MemoryStream(headerData)))
@@ -116,7 +114,15 @@ namespace CyArchiveTool
                             currentFileTableEntry.DataOffset = (uint)fileDataStream.BaseStream.Position;
                             fileDataStream.Write(outData);
 
-                            Console.WriteLine($"Repacked {Path.Combine(packFileName, $"{vPathData[1]}")}   [Compressed size: {fileEntryTable[i].CmpSize}]  [Uncompressed size: {fileEntryTable[i].UncmpSize}]");
+                            var padAmount = ZPACHelpers.ComputePadding(fileDataStream.BaseStream.Position, 16);
+
+                            if (padAmount != 0)
+                            {
+                                var paddingData = new byte[padAmount];
+                                fileDataStream.Write(paddingData);
+                            }
+
+                            Console.WriteLine($"Repacked {Path.Combine(packFileName, $"{vPathData[1]}")}");
                         }
                         else
                         {
@@ -157,7 +163,6 @@ namespace CyArchiveTool
             File.Move(packFile, oldPackFile);
             File.Move(newPackFile, packFile);
 
-            Console.WriteLine("");
             Console.WriteLine($"Finished repacking files to '{Path.GetFileName(packFile)}' file");
         }
     }

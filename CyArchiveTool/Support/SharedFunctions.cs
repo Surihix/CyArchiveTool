@@ -1,9 +1,12 @@
-﻿using static CyArchiveTool.Support.Enumerators;
+﻿using System.Text;
+using static CyArchiveTool.Support.Enumerators;
 
 namespace CyArchiveTool.Support
 {
     internal class SharedFunctions
     {
+        public static Encoding? ShiftJISEncoding = CodePagesEncodingProvider.Instance.GetEncoding(932);
+
         public static void ErrorExit(string errorMsg)
         {
             Console.WriteLine(errorMsg);
@@ -37,6 +40,12 @@ namespace CyArchiveTool.Support
             {
                 File.Delete(file);
             }
+        }
+
+        public static string UTF8toShiftJIS(string utf8StringVal)
+        {
+            var convertedPathData = Encoding.Convert(Encoding.UTF8, ShiftJISEncoding, Encoding.UTF8.GetBytes(utf8StringVal));
+            return ShiftJISEncoding.GetString(convertedPathData);
         }
     }
 }

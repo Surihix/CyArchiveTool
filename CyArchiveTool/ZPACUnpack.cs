@@ -4,7 +4,7 @@ namespace CyArchiveTool
 {
     internal class ZPACUnpack
     {
-        public static void UnpackPackFile(string packFile, bool usePaths = false)
+        public static void UnpackPackFile(string packFile, bool usePaths = false, string packPathsTxtFile = "")
         {
             var packFileDir = Path.GetDirectoryName(packFile);
             var packFileName = Path.GetFileNameWithoutExtension(packFile);
@@ -22,18 +22,29 @@ namespace CyArchiveTool
 
             Directory.CreateDirectory(unpackDir);
 
-            var packPathsTxtFile = Path.Combine(packFileDir, $"{packFileName}_paths.txt");
-
-            if (usePaths && !File.Exists(packPathsTxtFile))
+            if (usePaths)
             {
-                SharedFunctions.ErrorExit($"Unable to locate '{packFileName}_paths.txt' file. please use the normal -u function!");
+                SharedFunctions.CheckIfFileFolderExists(packPathsTxtFile, Enumerators.CheckType.file);
             }
 
             string[] filePaths = Array.Empty<string>();
 
             if (usePaths)
             {
-                filePaths = File.ReadAllLines(packPathsTxtFile);
+                Console.WriteLine("Reading filepaths....");
+                Console.WriteLine("");
+
+                var filePathsRead = new List<string>();
+
+                using (var packedPathsReader = new StreamReader(packPathsTxtFile))
+                {
+                    while (!packedPathsReader.EndOfStream)
+                    {
+                        filePathsRead.Add(SharedFunctions.UTF8toShiftJIS(packedPathsReader.ReadLine()));
+                    }
+                }
+
+                filePaths = filePathsRead.ToArray();
             }
 
             var packPathsMappingFile = Path.Combine(unpackDir, "##path_mappings.txt");
@@ -53,7 +64,7 @@ namespace CyArchiveTool
                 SharedFunctions.ErrorExit($"'{packFileName}_paths.txt' file doesn't contain all the filepaths. please use the normal -u function!");
             }
 
-            Console.WriteLine("");
+            int duplicateCounter = 0;
 
             using (var packFileReader = new BinaryReader(new FileStream(packFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
@@ -86,7 +97,7 @@ namespace CyArchiveTool
 
                             if (!vPath.StartsWith("FILE_"))
                             {
-                                var isValid = ZPACFileLoader.ValidatePath(vPath, i, hashEntryTable, hashEntryTableHeader.HashEntryCount);
+                                var isValid = ZPACHelpers.ValidatePath(vPath, i, hashEntryTable, hashEntryTableHeader.HashEntryCount);
 
                                 if (isValid)
                                 {
@@ -114,15 +125,26 @@ namespace CyArchiveTool
                             Directory.CreateDirectory(outFileDir);
                         }
 
+                        if (File.Exists(outFile))
+                        {
+                            File.Delete(outFile);
+                            duplicateCounter++;
+                        }
+
                         File.WriteAllBytes(outFile, dcmpData);
 
-                        Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}   [Compressed size: {fileEntryTable[i].CmpSize}]  [Uncompressed size: {fileEntryTable[i].UncmpSize}]");
+                        Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}");
                     }
                 }
             }
 
             Console.WriteLine("");
             Console.WriteLine($"Finished extracting '{Path.GetFileName(packFile)}' file");
+
+            if (duplicateCounter > 1)
+            {
+                Console.WriteLine($"{duplicateCounter} duplicate file(s)");
+            }
         }
     }
 }
