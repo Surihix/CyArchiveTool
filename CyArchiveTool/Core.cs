@@ -1,4 +1,6 @@
-﻿namespace CyArchiveTool
+﻿using CyArchiveTool.Support;
+
+namespace CyArchiveTool
 {
     internal class Core
     {
@@ -8,6 +10,8 @@
             {
                 Console.WriteLine("");
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
+                Console.WriteLine($"[CyArchiveTool v1.0.0.6]");
+                Console.WriteLine("");
 
                 // Parse args
                 if (args.Length == 1)
@@ -30,61 +34,46 @@
                     Help.ShowAppCommands();
                 }
 
+                if (toolActionSwitch == ToolActionSwitches.uwp || toolActionSwitch == ToolActionSwitches.r)
+                {
+                    if (args.Length < 3)
+                    {
+                        SharedFunctions.ErrorExit("Warning: Enough arguments not specified for this action. Please use -? or -h switches for more information!");
+                    }
+                }
+
                 switch (toolActionSwitch)
                 {
                     case ToolActionSwitches.u:
-                        CmnMethods.FileFolderExistsCheck(args[1], CmnMethods.ExistsCheckType.file);
-                        ValidityCheck(args[1]);
-                        CyUnpack.DecompressArchive(args[1]);
+                        ZPACUnpack.UnpackPackFile(args[1]);
+                        break;
+
+                    case ToolActionSwitches.uwp:
+                        ZPACUnpack.UnpackPackFile(args[1], true, args[2]);
                         break;
 
                     case ToolActionSwitches.r:
-                        if (args.Length < 3)
-                        {
-                            CmnMethods.ErrorExit("Warning: Enough arguments not specified for this action. Please use -? or -h switches for more information!");
-                        }
-                        CmnMethods.FileFolderExistsCheck(args[1], CmnMethods.ExistsCheckType.folder);
-                        CmnMethods.FileFolderExistsCheck(args[2], CmnMethods.ExistsCheckType.file);
-                        ValidityCheck(args[2]);
-                        CyRepack.CompressArchive(args[1], args[2]);
+                        ZPACRepack.RepackPackFile(args[1], args[2]);
                         break;
                 }
             }
             catch (Exception ex)
             {
-                CmnMethods.FileExistsDel("CrashLog.txt");
+                SharedFunctions.IfFileExistsDel("CrashLog.txt");
 
                 using (StreamWriter logWriter = new("CrashLog.txt"))
                 {
                     logWriter.WriteLine(ex);
                 }
-                CmnMethods.ErrorExit("" + ex);
+                SharedFunctions.ErrorExit("" + ex);
             }
         }
 
         enum ToolActionSwitches
         {
             u,
-            r,
-        }
-
-
-        static void ValidityCheck(string filePathVar)
-        {
-            using (FileStream checkFile = new(filePathVar, FileMode.Open, FileAccess.Read))
-            {
-                using (BinaryReader checkFileReader = new(checkFile))
-                {
-                    checkFileReader.BaseStream.Position = 0;
-                    var zpacStrChars = checkFileReader.ReadChars(4);
-                    var zpacStr = string.Join("", zpacStrChars).Replace("\0", "");
-
-                    if (!zpacStr.Contains("ZPAC"))
-                    {
-                        CmnMethods.ErrorExit("This is not a valid ZOE2 MARS .pack archive file");
-                    }
-                }
-            }
+            uwp,
+            r
         }
     }
 }

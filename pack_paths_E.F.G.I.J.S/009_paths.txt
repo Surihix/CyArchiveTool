@@ -1,0 +1,12 @@
+cygames/yebis/am02_YebisGlareSettings.json
+cygames/yebis/am02_YebisSettings.json
+cygames/yebis/ba_YebisGlareSettings.json
+cygames/yebis/ba_YebisSettings.json
+cygames/yebis/cs_YebisGlareSettings.json
+cygames/yebis/cs_YebisSettings.json
+cygames/yebis/ntitle_YebisGlareSettings.json
+cygames/yebis/ntitle_YebisSettings.json
+cygames/yebis/space_YebisGlareSettings.json
+cygames/yebis/space_YebisSettings.json
+cygames/yebis/YebisGlareSettings.json
+cygames/yebis/YebisSettings.json
