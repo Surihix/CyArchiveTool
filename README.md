@@ -20,6 +20,8 @@ This small program allows you to unpack and repack the .pack archive files that 
 - You can use the text files given in the [pack_paths_E.F.G.I.J.S](pack_paths_E.F.G.I.J.S) folder in this repo, to quickly unpack files with the correct file paths with the ``-uwp``. 
 <br>Do note that the file paths in these text files are not 100% complete and there are few files for which the file paths could not be determined due to the game itself not loading the said files. all of these paths were tested only for the full version game files and it may or may not be valid for the orange case demo version pack files.
 
+- If you want to try generating file paths for a pack file, then you can do so with the [CyArchivePathGenerator](https://github.com/Surihix/CyArchivePathGenerator) tool.
+
 - When repacking a file, you would have to provide the old .pack file along with the extracted folder path. the extracted folder should contain all the files and the `##path_mappings.txt` file.
 
 - Once repacking is done, the old .pack file will be renamed with a .old extension, while the new pack file will be renamed to the same name as the old pack file without the .old extension.
