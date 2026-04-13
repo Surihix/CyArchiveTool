@@ -1,0 +1,80 @@
+//----------------------------------------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: Zoe2MARS_pack.bt
+//   Authors: Surihix
+//   Version: 1.3
+//   Purpose: Parse ZOE2-Mars .pack files.
+//  Category: cygames pack archive
+// File Mask: *.pack
+//  ID Bytes: 5A 50 41 43
+//   History: 
+//   1.0   2023-07-04 Surihix: Initial version
+//   1.1   2025-05-24 Surihix: Adjusted structs
+//   1.2   2026-04-06 Surihix: Renamed all variables and added hash table section
+//   1.3   2026-04-14 Surihix: Updated to match with archive tool
+//----------------------------------------------------------------------------------
+
+LittleEndian();
+
+typedef struct HEADER
+{
+    char packMagic[4]<bgcolor=cDkGreen>;
+    Assert(packMagic == "ZPAC");
+
+    uint32 version<bgcolor=cDkGreen>;
+    uint32 hashTableOffset<bgcolor=cDkGreen>;
+    uint32 fileTableOffset<bgcolor=cDkGreen>;    
+}Header;
+
+
+typedef struct HASHTABLEENTRY
+{
+    uint32 strCode32Hash<comment="if 0, then treat as no hash", bgcolor=cDkPurple>; 
+    if (strCode32Hash != 0)
+    {
+        ubyte unkFlag<comment="Seems to be always 0x10", bgcolor=cRed>;
+        uint16 fileIndex<comment="should correspond to a file", bgcolor=0x41446c>;
+        ubyte padding<bgcolor=cBlack>;     
+    }
+    else
+    {
+        ubyte padding[4]<bgcolor=cBlack>;
+    }
+}HashTableEntry;
+
+
+typedef struct HASHTABLE
+{
+    uint32 hashTableEntryCount<comment="should be (FileCount * 2)", bgcolor=cDkGreen>;
+    ubyte reserved[12]<bgcolor=cBlack>;
+    HashTableEntry hashTableEntry[hashTableEntryCount]<name="HashTable Entry", optimize=false>;
+}HashTable;
+
+
+typedef struct FILEENTRY
+{
+    uint32 cmpSize<comment="Compressed Size (size in this archive)", bgcolor=0xbf6b6c>;
+    uint32 unkVal<bgcolor=cRed>;
+    uint32 uncmpSize<bgcolor=0xbf6b6c>;
+    uint32 dataOffset<comment="Compressed data start (relative from the first file)", bgcolor=0xbf6b6c>;
+    uint32 unkVal2<bgcolor=cRed>;
+    ubyte unkHashOrEncFilePath[224]<comment="Unknown Hash / Encrypted Filepath", bgcolor=cDkYellow>;
+    ubyte reserved[12]<bgcolor=cBlack>;
+}FileEntry;
+
+
+typedef struct FILETABLE
+{
+    uint32 fileCount<bgcolor=cDkGreen>;
+    ubyte reserved[12]<bgcolor=cBlack>;
+    FileEntry fileEntry[fileCount]<name="File Entry">;
+}FileTable;
+
+
+struct FILE
+{
+    Header header<open=true>;
+    HashTable hashTable<name="HashTable">;
+    FileTable fileTable<name="FileTable">;
+}File<open=true, name="ZOE2 pack">;

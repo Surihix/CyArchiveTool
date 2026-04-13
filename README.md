@@ -29,4 +29,4 @@ This small program allows you to unpack and repack the .pack archive files that 
 ## For Developers:
 The following package was used for lz4 compression and decompression:
 <br>**K4os.Compression.LZ4** - https://www.nuget.org/packages/K4os.Compression.LZ4
-<br><br>Refer to the format structure of the .pack file from [here](FormatStruct.md).
+<br><br>Refer to the format structure of the .pack file from [here](FormatStruct.md). a 010 bt template has also been provided in this repo.

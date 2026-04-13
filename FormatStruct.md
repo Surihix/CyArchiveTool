@@ -6,7 +6,7 @@
 | Offset | Size | Type | Description |
 | --- | --- | --- | --- |
 | 0x0 | 0x4  | String | ZPAC, header |
-| 0x4 | 0x4 | UInt32 | Unknown, always 0x1 and same value in all .pack files |
+| 0x4 | 0x4 | UInt32 | Version, always 0x1 and same value in all .pack files |
 | 0x8 | 0x4 | UInt32 | HashEntry Table section offset, always 0x10 and same value in all pack files |
 | 0xC | 0x4 | UInt32 | FileEntry Table section offset |
 
