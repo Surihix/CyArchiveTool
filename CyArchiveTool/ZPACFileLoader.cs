@@ -6,6 +6,7 @@ namespace CyArchiveTool
 {
     internal class ZPACFileLoader
     {
+        private static Encoding? ShiftJISEncoding = CodePagesEncodingProvider.Instance.GetEncoding(932);
         public static ZPACLoadData LoadPackFile(string packFile)
         {
             var zpacLoadData = new ZPACLoadData();
@@ -123,7 +124,7 @@ namespace CyArchiveTool
 
         private static uint StrCode32(string stringVal)
         {
-            var stringBytes = Encoding.ASCII.GetBytes(stringVal);
+            var stringBytes = ShiftJISEncoding.GetBytes(stringVal);
             uint c = stringBytes[0];
             int n = 0;
             uint id = 0;
