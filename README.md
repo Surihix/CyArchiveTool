@@ -12,12 +12,12 @@ This small program allows you to unpack and repack the .pack archive files that 
 ## Important notes
 - To display the help page, run the program with either the `-?` or `-h` switches. for example `CyArchiveTool -?`
 
-- Due to the pack archive file containing only hashes for file paths, the ``-u`` function will unpack files, with the name `FILE_` and that will be suffixed with the file's index number, for example `FILE_56.dds`.
+- Due to the pack archive file containing only hashes for file paths, the ``-u`` function will unpack files, with the name `FILE_` which will then be suffixed with the file's index number. for example `FILE_56.dds`.
 
 - The ``-uwp`` function can unpack files from the pack archive with proper file paths, by making use of a text file containing filepaths for each file that is stored in the pack archive.
 <br>This function checks each and every provided file path in the text file by hashing them and then comparing the hash with the hashes that exists in the pack archive. if the hash exists, then the file path is used for the unpacked file. if the hash does not exist, then the file is unpacked with the `FILE_` and index number as the filename. 
 
-- You can use the text files given in the [pack_paths_E.F.G.I.J.S](https://github.com/Surihix/CyArchiveTool/blob/master/pack_paths_E.F.G.I.J.S) folder in this repo, to quickly unpack files with the correct file paths with the ``-uwp``. 
+- You can use the text files given in the [pack_paths_E.F.G.I.J.S](paths_E.F.G.I.J.S) folder in this repo, to quickly unpack files with the correct file paths with the ``-uwp``. 
 <br>Do note that the file paths in these text files are not 100% complete and there are few files for which the file paths could not be determined due to the game itself not loading the said files. all of these paths were tested only for the full version game files and it may or may not be valid for the orange case demo version pack files.
 
 - When repacking a file, you would have to provide the old .pack file along with the extracted folder path. the extracted folder should contain all the files and the `##path_mappings.txt` file.
