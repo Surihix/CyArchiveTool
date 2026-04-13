@@ -26,6 +26,12 @@ namespace CyArchiveTool
 
             var zpacLoadData = ZPACFileLoader.LoadPackFile(packFile);
 
+            var zpacHeader = zpacLoadData.ZPACHeader;
+            var hashEntryTableHeader = zpacLoadData.HashEntryTableHeader;
+            var hashEntryTable = zpacLoadData.HashEntryTable;
+            var fileEntryTableHeader = zpacLoadData.FileEntryTableHeader;
+            var fileEntryTable = zpacLoadData.FileEntryTable;
+
             var newPackFile = packFile + ".new";
             SharedFunctions.IfFileExistsDel(newPackFile);
 
@@ -35,7 +41,7 @@ namespace CyArchiveTool
             var packDataFile = packFile + "_data";
             SharedFunctions.IfFileExistsDel(packDataFile);
 
-            if (filePaths.Length != zpacLoadData.FileEntryTableHeader.FileCount)
+            if (filePaths.Length != fileEntryTableHeader.FileCount)
             {
                 SharedFunctions.ErrorExit($"'{packFileName}_paths.txt' file doesn't contain all the filepaths!");
             }
@@ -45,24 +51,24 @@ namespace CyArchiveTool
             var headerData = new byte[16];
             using (var headerWriter = new BinaryWriter(new MemoryStream(headerData)))
             {
-                headerWriter.Write(Encoding.ASCII.GetBytes(zpacLoadData.ZPACHeader.Magic));
-                headerWriter.Write(BitConverter.GetBytes(zpacLoadData.ZPACHeader.UnkVal));
-                headerWriter.Write(BitConverter.GetBytes(zpacLoadData.ZPACHeader.HashTableOffset));
-                headerWriter.Write(BitConverter.GetBytes(zpacLoadData.ZPACHeader.FileTableOffset));
+                headerWriter.Write(Encoding.ASCII.GetBytes(zpacHeader.Magic));
+                headerWriter.Write(BitConverter.GetBytes(zpacHeader.Version));
+                headerWriter.Write(BitConverter.GetBytes(zpacHeader.HashTableOffset));
+                headerWriter.Write(BitConverter.GetBytes(zpacHeader.FileTableOffset));
             }
 
-            var hashEntryTableData = new byte[(int)(zpacLoadData.HashEntryTableHeader.HashEntryCount * 8) + 16];
+            var hashEntryTableData = new byte[(int)(hashEntryTableHeader.HashEntryCount * 8) + 16];
             using (var hashEntryTableWriter = new BinaryWriter(new MemoryStream(hashEntryTableData)))
             {
-                hashEntryTableWriter.Write(BitConverter.GetBytes(zpacLoadData.HashEntryTableHeader.HashEntryCount));
-                hashEntryTableWriter.Write(zpacLoadData.HashEntryTableHeader.Reserved);
+                hashEntryTableWriter.Write(BitConverter.GetBytes(hashEntryTableHeader.HashEntryCount));
+                hashEntryTableWriter.Write(hashEntryTableHeader.Reserved);
 
-                for (int i = 0; i < zpacLoadData.HashEntryTableHeader.HashEntryCount; i++)
+                for (int i = 0; i < hashEntryTableHeader.HashEntryCount; i++)
                 {
-                    hashEntryTableWriter.Write(BitConverter.GetBytes(zpacLoadData.HashEntryTable[i].StrCode32Hash));
-                    hashEntryTableWriter.Write(zpacLoadData.HashEntryTable[i].UnkFlag);
-                    hashEntryTableWriter.Write(BitConverter.GetBytes(zpacLoadData.HashEntryTable[i].FileIndex));
-                    hashEntryTableWriter.Write(zpacLoadData.HashEntryTable[i].Reserved);
+                    hashEntryTableWriter.Write(BitConverter.GetBytes(hashEntryTable[i].StrCode32Hash));
+                    hashEntryTableWriter.Write(hashEntryTable[i].UnkFlag);
+                    hashEntryTableWriter.Write(BitConverter.GetBytes(hashEntryTable[i].FileIndex));
+                    hashEntryTableWriter.Write(hashEntryTable[i].Reserved);
                 }
             }
 
@@ -70,16 +76,16 @@ namespace CyArchiveTool
             {
                 newPackWriter.Write(headerData);
                 newPackWriter.Write(hashEntryTableData);
-                newPackWriter.Write(BitConverter.GetBytes(fileTableHeader.FileCount));
-                newPackWriter.Write(fileTableHeader.Reserved);
+                newPackWriter.Write(BitConverter.GetBytes(fileEntryTableHeader.FileCount));
+                newPackWriter.Write(fileEntryTableHeader.Reserved);
 
                 using (var fileDataStream = new BinaryWriter(new FileStream(packDataFile, FileMode.Append, FileAccess.Write)))
                 {
                     var splitChar = new string[] { " >> " };
 
-                    for (int i = 0; i < fileTableHeader.FileCount; i++)
+                    for (int i = 0; i < fileEntryTableHeader.FileCount; i++)
                     {
-                        var currentFileTableEntry = fileTable[i];
+                        var currentFileTableEntry = fileEntryTable[i];
 
                         var vPathData = filePaths[i].Split(splitChar, StringSplitOptions.None);
 
@@ -95,16 +101,22 @@ namespace CyArchiveTool
                         if (File.Exists(outFile))
                         {
                             dataToCmp = File.ReadAllBytes(outFile);
-                            outData = ZPACHelpers.CompressLZ4Data(dataToCmp, dataToCmp.Length);
+
+                            if (dataToCmp.Length == 0)
+                            {
+                                outData = Array.Empty<byte>();
+                            }
+                            else
+                            {
+                                outData = ZPACHelpers.CompressLZ4Data(dataToCmp, dataToCmp.Length);
+                            }
 
                             currentFileTableEntry.CmpSize = outData.Length;
                             currentFileTableEntry.UncmpSize = dataToCmp.Length;
                             currentFileTableEntry.DataOffset = (uint)fileDataStream.BaseStream.Position;
                             fileDataStream.Write(outData);
 
-                            Console.WriteLine($"Repacked {Path.Combine(packFileName, $"{vPathData[1]}")}");
-                            Console.WriteLine($"Compressed size: {fileTable[i].CmpSize}");
-                            Console.WriteLine($"Uncompressed size: {fileTable[i].UncmpSize}");
+                            Console.WriteLine($"Repacked {Path.Combine(packFileName, $"{vPathData[1]}")}   [Compressed size: {fileEntryTable[i].CmpSize}]  [Uncompressed size: {fileEntryTable[i].UncmpSize}]");
                         }
                         else
                         {
@@ -125,8 +137,6 @@ namespace CyArchiveTool
                         newPackWriter.Write(BitConverter.GetBytes(currentFileTableEntry.UnkVal2));
                         newPackWriter.Write(currentFileTableEntry.UnkHashOrEncFilePath);
                         newPackWriter.Write(currentFileTableEntry.Reserved);
-
-                        Console.WriteLine("");
                     }
                 }
             }

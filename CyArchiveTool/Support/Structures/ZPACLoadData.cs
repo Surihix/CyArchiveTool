@@ -6,7 +6,7 @@
         public HashEntryTableHeader? HashEntryTableHeader;
         public HashEntry[]? HashEntryTable;
         public FileEntryTableHeader? FileEntryTableHeader;
-        public FileEntryTable[]? FileEntryTable;
+        public FileEntry[]? FileEntryTable;
         public long DataStartOffset;
     }
 }

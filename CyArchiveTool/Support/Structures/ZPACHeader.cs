@@ -3,9 +3,8 @@
     internal class ZPACHeader
     {
         public string? Magic;
-        public uint UnkVal;
+        public uint Version;
         public uint HashTableOffset;
         public uint FileTableOffset;
-        public uint HashTableEntryCount;
     }
 }

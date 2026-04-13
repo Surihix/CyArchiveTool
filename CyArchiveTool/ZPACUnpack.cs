@@ -43,7 +43,12 @@ namespace CyArchiveTool
 
             var zpacLoadData = ZPACFileLoader.LoadPackFile(packFile);
 
-            if (usePaths && filePaths.Length != zpacLoadData.FileEntryTableHeader.FileCount)
+            var hashEntryTableHeader = zpacLoadData.HashEntryTableHeader;
+            var hashEntryTable = zpacLoadData.HashEntryTable;
+            var fileEntryTableHeader = zpacLoadData.FileEntryTableHeader;
+            var fileEntryTable = zpacLoadData.FileEntryTable;
+
+            if (usePaths && filePaths.Length != fileEntryTableHeader.FileCount)
             {
                 SharedFunctions.ErrorExit($"'{packFileName}_paths.txt' file doesn't contain all the filepaths. please use the normal -u function!");
             }
@@ -56,12 +61,21 @@ namespace CyArchiveTool
 
                 using (var packFilePathsWriter = new StreamWriter(packPathsMappingFile, true))
                 {
-                    for (int i = 0; i < zpacLoadData.FileEntryTableHeader.FileCount; i++)
+                    for (int i = 0; i < fileEntryTableHeader.FileCount; i++)
                     {
-                        _ = packFileReader.BaseStream.Position = zpacLoadData.DataStartOffset + zpacLoadData.FileEntryTable[i].DataOffset;
+                        _ = packFileReader.BaseStream.Position = zpacLoadData.DataStartOffset + fileEntryTable[i].DataOffset;
 
-                        var cmpData = packFileReader.ReadBytes(zpacLoadData.FileEntryTable[i].CmpSize);
-                        var dcmpData = ZPACHelpers.UncompressLZ4Data(cmpData, zpacLoadData.FileEntryTable[i].UncmpSize);
+                        byte[] dcmpData;
+
+                        if (fileEntryTable[i].CmpSize != 0)
+                        {
+                            var cmpData = packFileReader.ReadBytes(fileEntryTable[i].CmpSize);
+                            dcmpData = ZPACHelpers.UncompressLZ4Data(cmpData, fileEntryTable[i].UncmpSize);
+                        }
+                        else
+                        {
+                            dcmpData = Array.Empty<byte>();
+                        }
 
                         var vPath = $"FILE_{i}";
                         var fileExtn = ZPACHelpers.GetExtension(dcmpData);
@@ -72,7 +86,7 @@ namespace CyArchiveTool
 
                             if (!vPath.StartsWith("FILE_"))
                             {
-                                var isValid = ZPACFileLoader.ValidatePath(vPath, i, zpacLoadData.HashEntryTable, zpacLoadData.HashEntryTableHeader.HashEntryCount);
+                                var isValid = ZPACFileLoader.ValidatePath(vPath, i, hashEntryTable, hashEntryTableHeader.HashEntryCount);
 
                                 if (isValid)
                                 {
@@ -102,10 +116,7 @@ namespace CyArchiveTool
 
                         File.WriteAllBytes(outFile, dcmpData);
 
-                        Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}");
-                        Console.WriteLine($"Compressed size: {zpacLoadData.FileEntryTable[i].CmpSize}");
-                        Console.WriteLine($"Uncompressed size: {zpacLoadData.FileEntryTable[i].UncmpSize}");
-                        Console.WriteLine("");
+                        Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}   [Compressed size: {fileEntryTable[i].CmpSize}]  [Uncompressed size: {fileEntryTable[i].UncmpSize}]");
                     }
                 }
             }

@@ -22,7 +22,7 @@ namespace CyArchiveTool
                     SharedFunctions.ErrorExit("This is not a valid ZOE2 MARS .pack archive file");
                 }
 
-                zpacHeader.UnkVal = packFileReader.ReadUInt32();
+                zpacHeader.Version = packFileReader.ReadUInt32();
                 zpacHeader.HashTableOffset = packFileReader.ReadUInt32();
                 zpacHeader.FileTableOffset = packFileReader.ReadUInt32();
 
@@ -99,7 +99,7 @@ namespace CyArchiveTool
             return fileEntryTable;
         }
 
-        public static bool ValidatePath(string vPath, int fileIndex, HashEntry[] hashEntryTable, uint hashEntryCount)
+        public static bool ValidatePath(string vPath, int fileIndex, HashEntry[]? hashEntryTable, uint hashEntryCount)
         {
             var isValid = false;
 

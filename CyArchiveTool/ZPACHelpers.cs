@@ -15,8 +15,14 @@ namespace CyArchiveTool
 
         public static string GetExtension(byte[] fileData)
         {
-            var readHeader = Encoding.ASCII.GetString(fileData, 0, 4).Replace("\0", "");
             var fileExtn = string.Empty;
+
+            if (fileData.Length < 4)
+            {
+                return fileExtn;
+            }
+
+            var readHeader = Encoding.ASCII.GetString(fileData, 0, 4).Replace("\0", "");
 
             switch (readHeader)
             {
