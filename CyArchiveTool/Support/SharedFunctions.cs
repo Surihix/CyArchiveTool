@@ -21,14 +21,14 @@ namespace CyArchiveTool.Support
                 case CheckType.file:
                     if (!File.Exists(fileFolder))
                     {
-                        ErrorExit("Specified file does not exist");
+                        ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' file does not exist");
                     }
                     break;
 
                 case CheckType.folder:
                     if (!Directory.Exists(fileFolder))
                     {
-                        ErrorExit("Specified directory does not exist");
+                        ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' directory does not exist");
                     }
                     break;
             }
