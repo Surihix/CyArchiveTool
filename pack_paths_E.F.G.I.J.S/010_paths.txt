@@ -5,12 +5,12 @@ cygames/mdl/cockpit/cockpit.mdlbin
 cygames/mdl/cockpit/cockpit2.win.dds
 cygames/mdl/cockpit/cockpit2_b.win.dds
 cygames/mdl/cockpit/cockpit2_b_mask.win.dds
-FILE_7
+cygames/mdl/cockpit/cockpit2_b_mask_customTheme.win.dds
 cygames/mdl/cockpit/cockpit2_b_nml.win.dds
 cygames/mdl/cockpit/cockpit2_b_reduction.win.dds
 cygames/mdl/cockpit/cockpit2_b_spec.win.dds
 cygames/mdl/cockpit/cockpit2_mask.win.dds
-FILE_12
+cygames/mdl/cockpit/cockpit2_mask_customTheme.win.dds
 cygames/mdl/cockpit/cockpit2_nml.win.dds
 cygames/mdl/cockpit/cockpit2_reduction.win.dds
 cygames/mdl/cockpit/cockpit2_spec.win.dds
@@ -63,4 +63,4 @@ cygames/mdl/human/din_002_alb.win.dds
 cygames/mdl/human/human.mdlbin
 cygames/mdl/human/human_backup_001.mdlbin
 cygames/mdl/human/human_backup_002.mdlbin
-FILE_65
+cygames/mdl/human/_din_001_nml.win.dds

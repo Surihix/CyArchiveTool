@@ -93,9 +93,23 @@ namespace CyArchiveTool
 
                         if (usePaths)
                         {
+                            var skipHash = false;
+
                             vPath = filePaths[i];
 
-                            if (!vPath.StartsWith("FILE_"))
+                            if (vPath.StartsWith("FILE_"))
+                            {
+                                skipHash = true;
+                            }
+
+                            if (vPath.EndsWith(" ?"))
+                            {
+                                vPath = vPath.Remove(vPath.Length - 2, 2);
+                                vPath = vPath.Replace("/", "\\");
+                                skipHash = true;
+                            }
+
+                            if (!skipHash)
                             {
                                 var isValid = ZPACHelpers.ValidatePath(vPath, i, hashEntryTable, hashEntryTableHeader.HashEntryCount);
 

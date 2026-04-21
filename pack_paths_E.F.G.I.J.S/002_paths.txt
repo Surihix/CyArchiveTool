@@ -116,7 +116,7 @@ cygames/shader/WIN/PS_GlarePut_ps.bin
 cygames/shader/WIN/PS_GlareResolve_ps.bin
 cygames/shader/WIN/PS_Lanczos3_H_ps.bin
 cygames/shader/WIN/PS_Lanczos3_V_ps.bin
-FILE_118
+cygames/shader/WIN/PS_LDR_GlareComposite_ps.bin
 cygames/shader/WIN/PS_LDR_ps.bin
 cygames/shader/WIN/PS_MergeAlphaReduction_ps.bin
 cygames/shader/WIN/PS_MergeAlphaVR_ps.bin

@@ -1321,6 +1321,12 @@ cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_legal_g.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_legal_i.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_legal_j.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_legal_s.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_loadFailedShort_e.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_loadFailedShort_f.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_loadFailedShort_g.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_loadFailedShort_i.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_loadFailedShort_j.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_loadFailedShort_s.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_loadFailed_e.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_loadFailed_f.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_loadFailed_g.win.dds
@@ -1369,6 +1375,12 @@ cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveDataVersionErr_g
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveDataVersionErr_i.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveDataVersionErr_j.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveDataVersionErr_s.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveFailedShort_e.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveFailedShort_f.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveFailedShort_g.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveFailedShort_i.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveFailedShort_j.win.dds
+cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveFailedShort_s.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveFailed_e.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveFailed_f.win.dds
 cygames/ui/0_000_COMMON/030_promptDialog/str_prompt_message_saveFailed_g.win.dds

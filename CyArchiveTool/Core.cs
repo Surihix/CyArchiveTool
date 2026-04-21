@@ -10,7 +10,7 @@ namespace CyArchiveTool
             {
                 Console.WriteLine("");
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
-                Console.WriteLine($"[CyArchiveTool v1.0.0.6]");
+                Console.WriteLine($"[CyArchiveTool v1.0.0.7]");
                 Console.WriteLine("");
 
                 // Parse args

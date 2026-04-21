@@ -1,7 +1,7 @@
 cygames/check_points/ba01.csv
 cygames/check_points/ba04.csv
 cygames/check_points/ca01.csv
-FILE_3
+cygames/check_points/cpひな形.csv ?
 cygames/check_points/cy01.csv
 cygames/check_points/ds00.csv
 cygames/check_points/ds01.csv
