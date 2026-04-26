@@ -43,8 +43,8 @@
 | 0x4 | 0x4 | UInt32 | Unknown |
 | 0x8 | 0x4 | UInt32 | Uncompressed data size |
 | 0xC | 0x4 | UInt32 | Data offset, relative from first file's data |
-| 0x10 | 0x4 | UInt32 | Unknown2, value is 1 in all .pack files |
-| 0x14 | 0xE0 | UInt32[56] | Hash or encrypted filename, same size in all .pack files |
+| 0x10 | 0x4 | UInt32 | Compression flag, value is 1 in all .pack files (0 = data is uncompressed) |
+| 0x14 | 0xE0 | UInt32[56] | Encrypted filename, same size in all .pack files |
 | 0xE0 | 0xC | UInt32[3] | Reserved, always null |
 
 #### Notes

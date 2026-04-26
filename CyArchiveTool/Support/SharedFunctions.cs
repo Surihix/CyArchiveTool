@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using static CyArchiveTool.Support.Enumerators;
 
 namespace CyArchiveTool.Support
 {
@@ -14,23 +13,22 @@ namespace CyArchiveTool.Support
             Environment.Exit(0);
         }
 
-        public static void CheckIfFileFolderExists(string fileFolder, CheckType checkType)
+        public static void CheckIfFileFolderExists(string fileFolder, bool isFile)
         {
-            switch (checkType)
+            if (isFile)
             {
-                case CheckType.file:
-                    if (!File.Exists(fileFolder))
-                    {
-                        ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' file does not exist");
-                    }
-                    break;
+                if (!File.Exists(fileFolder))
+                {
+                    ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' file does not exist");
+                }
+            }
 
-                case CheckType.folder:
-                    if (!Directory.Exists(fileFolder))
-                    {
-                        ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' directory does not exist");
-                    }
-                    break;
+            if (!isFile)
+            {
+                if (!Directory.Exists(fileFolder))
+                {
+                    ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' directory does not exist");
+                }
             }
         }
 

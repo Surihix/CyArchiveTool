@@ -10,7 +10,7 @@ namespace CyArchiveTool
             {
                 Console.WriteLine("");
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
-                Console.WriteLine($"[CyArchiveTool v1.0.0.7]");
+                Console.WriteLine($"[CyArchiveTool v1.0.0.8]");
                 Console.WriteLine("");
 
                 // Parse args
@@ -34,7 +34,7 @@ namespace CyArchiveTool
                     Help.ShowAppCommands();
                 }
 
-                if (toolActionSwitch == ToolActionSwitches.uwp || toolActionSwitch == ToolActionSwitches.r)
+                if (toolActionSwitch == ToolActionSwitches.uaf || toolActionSwitch == ToolActionSwitches.uad || toolActionSwitch == ToolActionSwitches.r)
                 {
                     if (args.Length < 3)
                     {
@@ -45,11 +45,15 @@ namespace CyArchiveTool
                 switch (toolActionSwitch)
                 {
                     case ToolActionSwitches.u:
-                        ZPACUnpack.UnpackPackFile(args[1]);
+                        ZPACUnpack.UnpackFull(args[1]);
                         break;
 
-                    case ToolActionSwitches.uwp:
-                        ZPACUnpack.UnpackPackFile(args[1], true, args[2]);
+                    case ToolActionSwitches.uaf:
+                        ZPACUnpack.UnpackSingle(args[1], args[2]);
+                        break;
+
+                    case ToolActionSwitches.uad:
+                        ZPACUnpack.UnpackDirectory(args[1], args[2]);
                         break;
 
                     case ToolActionSwitches.r:
@@ -72,7 +76,9 @@ namespace CyArchiveTool
         enum ToolActionSwitches
         {
             u,
-            uwp,
+            uaf,
+            uad,
+            up,
             r
         }
     }

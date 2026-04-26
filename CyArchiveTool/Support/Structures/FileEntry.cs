@@ -6,8 +6,8 @@
         public uint UnkVal;
         public int UncmpSize;
         public uint DataOffset;
-        public uint UnkVal2;
-        public byte[]? UnkHashOrEncFilePath;
+        public uint CmpFlag;
+        public byte[]? EncFilePath;
         public byte[]? Reserved;
     }
 }
