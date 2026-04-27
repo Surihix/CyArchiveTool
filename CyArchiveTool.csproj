@@ -23,8 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="CyArchiveTool\Repack\" />
-    <Folder Include="CyArchiveTool\Unpack\" />
     <Folder Include="pack_paths_E.F.G.I.J.S\" />
   </ItemGroup>
 

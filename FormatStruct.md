@@ -23,7 +23,7 @@
 | Offset | Size | Type | Description |
 | --- | --- | --- | --- |
 | 0x0 | 0x4 | UInt32 | StrCode32 hash of FilePath, if null treat this offset and the next 4 bytes as null |
-| 0x4 | 0x1 | UInt8 | Unknown flag, always 0x10 |
+| 0x4 | 0x1 | UInt8 | Entry Flag, 0x10 if present or 0 if not present |
 | 0x5 | 0x1 | UInt16 | File Index |
 | 0x6 | 0x1 | UInt8 | Reserved, always null |
 
@@ -49,3 +49,4 @@
 
 #### Notes
 - The compression used is raw lz4. use the library linked in the main readme document to decompress and compress the data.
+- Refer to the codebase for the path decryption process.

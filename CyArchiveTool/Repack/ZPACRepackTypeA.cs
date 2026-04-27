@@ -1,12 +1,10 @@
 ﻿using CyArchiveTool.Support;
 using System.Text;
 
-namespace CyArchiveTool
+namespace CyArchiveTool.Repack
 {
-    internal class ZPACRepack
+    internal class ZPACRepackTypeA
     {
-        private static readonly string PathSeparatorChar = Path.DirectorySeparatorChar.ToString();
-
         public static void RepackFull(string packFile, string unpackedDir)
         {
             var packFileName = Path.GetFileNameWithoutExtension(packFile);
@@ -56,7 +54,7 @@ namespace CyArchiveTool
                 }
             }
 
-            using (var fileDataStream = new BinaryWriter(new FileStream(packDataFile, FileMode.Append, FileAccess.Write)))
+            using (var fileDataWriter = new BinaryWriter(new FileStream(packDataFile, FileMode.Append, FileAccess.Write)))
             {
                 for (int i = 0; i < fileEntryTable.FileCount; i++)
                 {
@@ -65,48 +63,10 @@ namespace CyArchiveTool
                     var currentPathHash = ZPACFileLoader.GetPathHashByFileIndex(hashEntryTable.HashEntries, i);
 
                     var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
-                    vPath = vPath.Replace("/", PathSeparatorChar);
+                    vPath = vPath.Replace("/", Core.PathSeparatorChar);
 
-                    var outFile = Path.Combine(unpackedDir, vPath);
-
-                    var fileData = Array.Empty<byte>();
-                    var dataToPack = Array.Empty<byte>();
                     var isNullData = false;
-
-                    if (File.Exists(outFile))
-                    {
-                        fileData = File.ReadAllBytes(outFile);
-                    }
-
-                    if (!File.Exists(outFile))
-                    {
-                        isNullData = true;
-                        fileData = new byte[16];
-                    }
-
-                    if (currentFileEntry.CmpLevel == 0 || isNullData)
-                    {
-                        dataToPack = fileData;
-                    }
-
-                    if (currentFileEntry.CmpLevel != 0 && !isNullData)
-                    {
-                        dataToPack = LZ4Functions.CompressLZ4Data(fileData, fileData.Length, currentFileEntry.CmpLevel);
-                    }
-
-                    currentFileEntry.CmpSize = dataToPack.Length;
-                    currentFileEntry.UncmpSize = fileData.Length;
-                    currentFileEntry.DataOffset = (uint)fileDataStream.BaseStream.Position;
-                    fileDataStream.Write(dataToPack);
-
-                    fileEntryTable.FileEntries[i] = currentFileEntry;
-
-                    var padAmount = ZPACHelpers.ComputePadding(fileDataStream.BaseStream.Position, 16);
-
-                    if (padAmount != 0)
-                    {
-                        fileDataStream.Write(new byte[padAmount]);
-                    }
+                    ZPACRepackHelpers.DataRepack(unpackedDir, vPath, currentFileEntry, fileDataWriter, ref fileEntryTable, i, ref isNullData);
 
                     if (isNullData)
                     {
@@ -116,7 +76,7 @@ namespace CyArchiveTool
                     if (!isNullData)
                     {
                         Console.WriteLine($"Repacked {Path.Combine(packFileName, vPath)}");
-                    }                    
+                    }
                 }
             }
 

@@ -1,9 +1,12 @@
-﻿using CyArchiveTool.Support;
+﻿using CyArchiveTool.Repack;
+using CyArchiveTool.Support;
+using CyArchiveTool.Unpack;
 
 namespace CyArchiveTool
 {
     internal class Core
     {
+        public static readonly string PathSeparatorChar = Path.DirectorySeparatorChar.ToString();
         static void Main(string[] args)
         {
             try
@@ -34,30 +37,38 @@ namespace CyArchiveTool
                     Help.ShowAppCommands();
                 }
 
-                if (toolActionSwitch == ToolActionSwitches.uaf || toolActionSwitch == ToolActionSwitches.uad || toolActionSwitch == ToolActionSwitches.r)
-                {
-                    if (args.Length < 3)
-                    {
-                        SharedFunctions.ErrorExit("Warning: Enough arguments not specified for this action. Please use -? or -h switches for more information!");
-                    }
-                }
+                var pathSeparatorChar = Path.DirectorySeparatorChar.ToString();
 
                 switch (toolActionSwitch)
                 {
                     case ToolActionSwitches.u:
-                        ZPACUnpack.UnpackFull(args[1]);
+                        CheckArgsLength(args, 2);
+
+                        ZPACUnpackTypeA.UnpackFull(args[1], pathSeparatorChar);
                         break;
 
                     case ToolActionSwitches.uaf:
-                        ZPACUnpack.UnpackSingle(args[1], args[2]);
+                        CheckArgsLength(args, 3);
+
+                        ZPACUnpackTypeB.UnpackSingle(args[1], args[2], pathSeparatorChar);
                         break;
 
                     case ToolActionSwitches.uad:
-                        ZPACUnpack.UnpackDirectory(args[1], args[2]);
+                        CheckArgsLength(args, 3);
+
+                        ZPACUnpackTypeC.UnpackDirectory(args[1], args[2], pathSeparatorChar);
+                        break;
+
+                    case ToolActionSwitches.up:
+                        CheckArgsLength(args, 2);
+
+                        ZPACUnpackPaths.UnpackPaths(args[1]);
                         break;
 
                     case ToolActionSwitches.r:
-                        ZPACRepack.RepackFull(args[1], args[2]);
+                        CheckArgsLength(args, 3);
+
+                        ZPACRepackTypeA.RepackFull(args[1], args[2]);
                         break;
                 }
             }
@@ -70,6 +81,14 @@ namespace CyArchiveTool
                     logWriter.WriteLine(ex);
                 }
                 SharedFunctions.ErrorExit("" + ex);
+            }
+        }
+
+        private static void CheckArgsLength(string[] args, int requiredLength)
+        {
+            if (args.Length < requiredLength)
+            {
+                SharedFunctions.ErrorExit("Warning: Enough arguments not specified for this action. Please use -? or -h switches for more information!");
             }
         }
 
