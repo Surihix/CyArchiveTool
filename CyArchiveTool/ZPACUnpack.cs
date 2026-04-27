@@ -7,6 +7,8 @@ namespace CyArchiveTool
     internal class ZPACUnpack
     {
         private static readonly string PathSeparatorChar = Path.DirectorySeparatorChar.ToString();
+
+        #region -u Unpack Full
         public static void UnpackFull(string packFile)
         {
             var packFileDir = Path.GetDirectoryName(packFile);
@@ -63,8 +65,10 @@ namespace CyArchiveTool
                 Console.WriteLine($"{duplicateCounter} duplicate file(s)");
             }
         }
+        #endregion
 
 
+        #region -uaf Unpack Single
         public static void UnpackSingle(string packFile, string virtualFilePath)
         {
             virtualFilePath = virtualFilePath.Replace("\\", PathSeparatorChar);
@@ -130,8 +134,10 @@ namespace CyArchiveTool
                 Console.WriteLine("Specified file does not exist. please specify a valid file path.");
             }
         }
+        #endregion
 
 
+        #region -uad Unpack directory
         public static void UnpackDirectory(string packFile, string virtualDirectory)
         {
             virtualDirectory = virtualDirectory.Replace("*", "");
@@ -214,6 +220,7 @@ namespace CyArchiveTool
                 Console.WriteLine("Specified directory does not exist. please specify a valid directory.");
             }
         }
+        #endregion
 
 
         private static void DataUnpack(string unpackDir, string vPath, ref int duplicateCounter, BinaryReader packFileReader, FileEntry fileEntry)
@@ -234,7 +241,7 @@ namespace CyArchiveTool
 
             var fileDataInPack = packFileReader.ReadBytes(fileEntry.CmpSize);
 
-            if (fileEntry.CmpFlag == 1 && fileEntry.CmpSize != fileEntry.UncmpSize)
+            if (fileEntry.CmpLevel != 0 && fileEntry.CmpSize != fileEntry.UncmpSize)
             {
                 var dcmpData = LZ4Functions.UncompressLZ4Data(fileDataInPack, fileEntry.UncmpSize);
                 File.WriteAllBytes(outFile, dcmpData);

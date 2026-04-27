@@ -6,7 +6,7 @@
         public uint UnkVal;
         public int UncmpSize;
         public uint DataOffset;
-        public uint CmpFlag;
+        public uint CmpLevel;
         public byte[]? EncFilePath;
         public byte[]? Reserved;
     }

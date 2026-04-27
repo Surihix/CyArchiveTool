@@ -57,7 +57,7 @@ namespace CyArchiveTool
                         break;
 
                     case ToolActionSwitches.r:
-                        ZPACRepack.RepackPackFile(args[1], args[2]);
+                        ZPACRepack.RepackFull(args[1], args[2]);
                         break;
                 }
             }

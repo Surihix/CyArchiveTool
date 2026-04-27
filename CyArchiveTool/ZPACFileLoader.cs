@@ -100,7 +100,7 @@ namespace CyArchiveTool
                     UnkVal = packFileReader.ReadUInt32(),
                     UncmpSize = packFileReader.ReadInt32(),
                     DataOffset = packFileReader.ReadUInt32(),
-                    CmpFlag = packFileReader.ReadUInt32(),
+                    CmpLevel = packFileReader.ReadUInt32(),
                     EncFilePath = packFileReader.ReadBytes(224),
                     Reserved = packFileReader.ReadBytes(12)
                 };
@@ -140,12 +140,12 @@ namespace CyArchiveTool
             var decFilePathData = new byte[encFilePathData.Length];
             var length = 0;
 
-            for (int j = 0; j < encFilePathData.Length; j++)
+            for (int i = 0; i < encFilePathData.Length; i++)
             {
-                var currentByte = encFilePathData[j];
-                decFilePathData[j] = (byte)(xorValue ^ currentByte);
+                var currentByte = encFilePathData[i];
+                decFilePathData[i] = (byte)(xorValue ^ currentByte);
 
-                if (decFilePathData[j] == 0)
+                if (decFilePathData[i] == 0)
                 {
                     break;
                 }

@@ -7,6 +7,8 @@
             Console.WriteLine("");
             Console.WriteLine("App Commands:");
             Console.WriteLine("-u = Unpack a .pack file");
+            Console.WriteLine("-uaf = Unpack a single file from a pack file");
+            Console.WriteLine("-uad = Unpacks a specific directory along with sub directories, from a pack file");
             Console.WriteLine("-r = Repack a .pack file with an unpacked folder");
             Console.WriteLine("");
             Console.WriteLine("Examples:");

@@ -1,166 +1,167 @@
-﻿namespace CyArchiveTool
+﻿using CyArchiveTool.Support;
+using System.Text;
+
+namespace CyArchiveTool
 {
     internal class ZPACRepack
     {
-        public static void RepackPackFile(string packFile, string unpackedDir)
+        private static readonly string PathSeparatorChar = Path.DirectorySeparatorChar.ToString();
+
+        public static void RepackFull(string packFile, string unpackedDir)
         {
-            //var packFileName = Path.GetFileNameWithoutExtension(packFile);
+            var packFileName = Path.GetFileNameWithoutExtension(packFile);
 
-            //SharedFunctions.CheckIfFileFolderExists(packFile, Enumerators.CheckType.file);
-            //SharedFunctions.CheckIfFileFolderExists(unpackedDir, Enumerators.CheckType.folder);
+            SharedFunctions.CheckIfFileFolderExists(packFile, true);
+            SharedFunctions.CheckIfFileFolderExists(unpackedDir, false);
 
-            //var packPathsMappingFile = Path.Combine(unpackedDir, "##path_mappings.txt");
+            Console.WriteLine("Loading pack file....");
+            Console.WriteLine("");
 
-            //if (!File.Exists(packPathsMappingFile))
-            //{
-            //    SharedFunctions.ErrorExit($"Unable to locate '##path_mappings.txt' file inside unpacked folder!");
-            //}
+            var zpacLoadData = ZPACFileLoader.LoadPackFile(packFile);
 
-            //var filePaths = File.ReadAllLines(packPathsMappingFile);
+            var zpacHeader = zpacLoadData.ZPACHeader;
+            var hashEntryTable = zpacLoadData.HashEntryTable;
+            var fileEntryTable = zpacLoadData.FileEntryTable;
 
-            //Console.WriteLine("Loading pack file....");
-            //Console.WriteLine("");
+            var newPackFile = packFile + ".new";
+            SharedFunctions.IfFileExistsDel(newPackFile);
 
-            //var zpacLoadData = ZPACFileLoader.LoadPackFile(packFile);
+            var oldPackFile = packFile + ".old";
+            SharedFunctions.IfFileExistsDel(oldPackFile);
 
-            //var zpacHeader = zpacLoadData.ZPACHeader;
-            //var hashEntryTableHeader = zpacLoadData.HashEntryTableHeader;
-            //var hashEntryTable = zpacLoadData.HashEntryTable;
-            //var fileEntryTableHeader = zpacLoadData.FileEntryTableHeader;
-            //var fileEntryTable = zpacLoadData.FileEntryTable;
+            var packDataFile = packFile + "_data";
+            SharedFunctions.IfFileExistsDel(packDataFile);
 
-            //var newPackFile = packFile + ".new";
-            //SharedFunctions.IfFileExistsDel(newPackFile);
+            var headerData = new byte[16];
+            using (var headerWriter = new BinaryWriter(new MemoryStream(headerData)))
+            {
+                headerWriter.Write(Encoding.ASCII.GetBytes(zpacHeader.Magic));
+                headerWriter.WriteBytesUInt32(zpacHeader.Version, false);
+                headerWriter.WriteBytesUInt32(zpacHeader.HashTableOffset, false);
+                headerWriter.WriteBytesUInt32(zpacHeader.FileTableOffset, false);
+            }
 
-            //var oldPackFile = packFile + ".old";
-            //SharedFunctions.IfFileExistsDel(oldPackFile);
+            var hashEntryTableData = new byte[(int)(hashEntryTable.EntryCount * 8) + 16];
+            using (var hashEntryTableWriter = new BinaryWriter(new MemoryStream(hashEntryTableData)))
+            {
+                hashEntryTableWriter.WriteBytesUInt32(hashEntryTable.EntryCount, false);
+                hashEntryTableWriter.Write(hashEntryTable.Reserved);
 
-            //var packDataFile = packFile + "_data";
-            //SharedFunctions.IfFileExistsDel(packDataFile);
+                for (int i = 0; i < hashEntryTable.EntryCount; i++)
+                {
+                    hashEntryTableWriter.WriteBytesUInt32(hashEntryTable.HashEntries[i].StrCode32Hash, false);
+                    hashEntryTableWriter.Write(hashEntryTable.HashEntries[i].UnkFlag);
+                    hashEntryTableWriter.WriteBytesUInt16(hashEntryTable.HashEntries[i].FileIndex, false);
+                    hashEntryTableWriter.Write(hashEntryTable.HashEntries[i].Reserved);
+                }
+            }
 
-            //if (filePaths.Length != fileEntryTableHeader.FileCount)
-            //{
-            //    SharedFunctions.ErrorExit($"'{packFileName}_paths.txt' file doesn't contain all the filepaths!");
-            //}
+            using (var fileDataStream = new BinaryWriter(new FileStream(packDataFile, FileMode.Append, FileAccess.Write)))
+            {
+                for (int i = 0; i < fileEntryTable.FileCount; i++)
+                {
+                    var currentFileEntry = fileEntryTable.FileEntries[i];
 
-            //var headerData = new byte[16];
-            //using (var headerWriter = new BinaryWriter(new MemoryStream(headerData)))
-            //{
-            //    headerWriter.Write(Encoding.ASCII.GetBytes(zpacHeader.Magic));
-            //    headerWriter.Write(BitConverter.GetBytes(zpacHeader.Version));
-            //    headerWriter.Write(BitConverter.GetBytes(zpacHeader.HashTableOffset));
-            //    headerWriter.Write(BitConverter.GetBytes(zpacHeader.FileTableOffset));
-            //}
+                    var currentPathHash = ZPACFileLoader.GetPathHashByFileIndex(hashEntryTable.HashEntries, i);
 
-            //var hashEntryTableData = new byte[(int)(hashEntryTableHeader.HashEntryCount * 8) + 16];
-            //using (var hashEntryTableWriter = new BinaryWriter(new MemoryStream(hashEntryTableData)))
-            //{
-            //    hashEntryTableWriter.Write(BitConverter.GetBytes(hashEntryTableHeader.HashEntryCount));
-            //    hashEntryTableWriter.Write(hashEntryTableHeader.Reserved);
+                    var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
+                    vPath = vPath.Replace("/", PathSeparatorChar);
 
-            //    for (int i = 0; i < hashEntryTableHeader.HashEntryCount; i++)
-            //    {
-            //        hashEntryTableWriter.Write(BitConverter.GetBytes(hashEntryTable[i].StrCode32Hash));
-            //        hashEntryTableWriter.Write(hashEntryTable[i].UnkFlag);
-            //        hashEntryTableWriter.Write(BitConverter.GetBytes(hashEntryTable[i].FileIndex));
-            //        hashEntryTableWriter.Write(hashEntryTable[i].Reserved);
-            //    }
-            //}
+                    var outFile = Path.Combine(unpackedDir, vPath);
 
-            //using (var newPackWriter = new FileStream(newPackFile, FileMode.Append, FileAccess.Write))
-            //{
-            //    newPackWriter.Write(headerData);
-            //    newPackWriter.Write(hashEntryTableData);
-            //    newPackWriter.Write(BitConverter.GetBytes(fileEntryTableHeader.FileCount));
-            //    newPackWriter.Write(fileEntryTableHeader.Reserved);
+                    var fileData = Array.Empty<byte>();
+                    var dataToPack = Array.Empty<byte>();
+                    var isNullData = false;
 
-            //    using (var fileDataStream = new BinaryWriter(new FileStream(packDataFile, FileMode.Append, FileAccess.Write)))
-            //    {
-            //        var splitChar = new string[] { " >> " };
+                    if (File.Exists(outFile))
+                    {
+                        fileData = File.ReadAllBytes(outFile);
+                    }
 
-            //        for (int i = 0; i < fileEntryTableHeader.FileCount; i++)
-            //        {
-            //            var currentFileTableEntry = fileEntryTable[i];
+                    if (!File.Exists(outFile))
+                    {
+                        isNullData = true;
+                        fileData = new byte[16];
+                    }
 
-            //            var vPathData = filePaths[i].Split(splitChar, StringSplitOptions.None);
+                    if (currentFileEntry.CmpLevel == 0 || isNullData)
+                    {
+                        dataToPack = fileData;
+                    }
 
-            //            if (vPathData.Length < 2)
-            //            {
-            //                SharedFunctions.ErrorExit($"Unable to find mapped file path for 'FILE_{i}'");
-            //            }
+                    if (currentFileEntry.CmpLevel != 0 && !isNullData)
+                    {
+                        dataToPack = LZ4Functions.CompressLZ4Data(fileData, fileData.Length, currentFileEntry.CmpLevel);
+                    }
 
-            //            var outFile = Path.Combine(unpackedDir, vPathData[1]);
-            //            byte[] dataToCmp;
-            //            byte[] outData;
+                    currentFileEntry.CmpSize = dataToPack.Length;
+                    currentFileEntry.UncmpSize = fileData.Length;
+                    currentFileEntry.DataOffset = (uint)fileDataStream.BaseStream.Position;
+                    fileDataStream.Write(dataToPack);
 
-            //            if (File.Exists(outFile))
-            //            {
-            //                dataToCmp = File.ReadAllBytes(outFile);
+                    fileEntryTable.FileEntries[i] = currentFileEntry;
 
-            //                if (dataToCmp.Length == 0)
-            //                {
-            //                    outData = Array.Empty<byte>();
-            //                }
-            //                else
-            //                {
-            //                    outData = ZPACHelpers.CompressLZ4Data(dataToCmp, dataToCmp.Length);
-            //                }
+                    var padAmount = ZPACHelpers.ComputePadding(fileDataStream.BaseStream.Position, 16);
 
-            //                currentFileTableEntry.CmpSize = outData.Length;
-            //                currentFileTableEntry.UncmpSize = dataToCmp.Length;
-            //                currentFileTableEntry.DataOffset = (uint)fileDataStream.BaseStream.Position;
-            //                fileDataStream.Write(outData);
+                    if (padAmount != 0)
+                    {
+                        fileDataStream.Write(new byte[padAmount]);
+                    }
 
-            //                var padAmount = ZPACHelpers.ComputePadding(fileDataStream.BaseStream.Position, 16);
+                    if (isNullData)
+                    {
+                        Console.WriteLine($"Unable to locate file. added null data!");
+                    }
 
-            //                if (padAmount != 0)
-            //                {
-            //                    var paddingData = new byte[padAmount];
-            //                    fileDataStream.Write(paddingData);
-            //                }
+                    if (!isNullData)
+                    {
+                        Console.WriteLine($"Repacked {Path.Combine(packFileName, vPath)}");
+                    }                    
+                }
+            }
 
-            //                Console.WriteLine($"Repacked {Path.Combine(packFileName, $"{vPathData[1]}")}");
-            //            }
-            //            else
-            //            {
-            //                outData = new byte[16];
+            Console.WriteLine("");
+            Console.WriteLine("Building entry table....");
 
-            //                currentFileTableEntry.CmpSize = 16;
-            //                currentFileTableEntry.UncmpSize = 16;
-            //                currentFileTableEntry.DataOffset = (uint)fileDataStream.BaseStream.Position;
-            //                fileDataStream.Write(outData);
+            var fileEntryTableData = new byte[(int)(fileEntryTable.FileCount * 256) + 16];
+            using (var fileEntryTableWriter = new BinaryWriter(new MemoryStream(fileEntryTableData)))
+            {
+                fileEntryTableWriter.WriteBytesUInt32(fileEntryTable.FileCount, false);
+                fileEntryTableWriter.Write(hashEntryTable.Reserved);
 
-            //                Console.WriteLine($"Unable to locate file. added null data!");
-            //            }
+                foreach (var entry in fileEntryTable.FileEntries)
+                {
+                    fileEntryTableWriter.WriteBytesInt32(entry.CmpSize, false);
+                    fileEntryTableWriter.WriteBytesUInt32(entry.UnkVal, false);
+                    fileEntryTableWriter.WriteBytesInt32(entry.UncmpSize, false);
+                    fileEntryTableWriter.WriteBytesUInt32(entry.DataOffset, false);
+                    fileEntryTableWriter.WriteBytesUInt32(entry.CmpLevel, false);
+                    fileEntryTableWriter.Write(entry.EncFilePath);
+                    fileEntryTableWriter.Write(entry.Reserved);
+                }
+            }
 
-            //            newPackWriter.Write(BitConverter.GetBytes(currentFileTableEntry.CmpSize));
-            //            newPackWriter.Write(BitConverter.GetBytes(currentFileTableEntry.UnkVal));
-            //            newPackWriter.Write(BitConverter.GetBytes(currentFileTableEntry.UncmpSize));
-            //            newPackWriter.Write(BitConverter.GetBytes(currentFileTableEntry.DataOffset));
-            //            newPackWriter.Write(BitConverter.GetBytes(currentFileTableEntry.UnkVal2));
-            //            newPackWriter.Write(currentFileTableEntry.EncFilePath);
-            //            newPackWriter.Write(currentFileTableEntry.Reserved);
-            //        }
-            //    }
-            //}
+            Console.WriteLine("");
+            Console.WriteLine("Building finalized pack file....");
 
-            //Console.WriteLine("");
-            //Console.WriteLine("Building finalized pack file....");
-            //Console.WriteLine("");
+            using (var finalPackStream = new FileStream(newPackFile, FileMode.Append, FileAccess.Write))
+            {
+                finalPackStream.Write(headerData);
+                finalPackStream.Write(hashEntryTableData);
+                finalPackStream.Write(fileEntryTableData);
 
-            //using (var finalPackStream = new FileStream(newPackFile, FileMode.Append, FileAccess.Write))
-            //{
-            //    using (var dataPackStream = new FileStream(packDataFile, FileMode.Open, FileAccess.Read))
-            //    {
-            //        dataPackStream.CopyTo(finalPackStream);
-            //    }
-            //}
+                using (var dataPackStream = new FileStream(packDataFile, FileMode.Open, FileAccess.Read))
+                {
+                    dataPackStream.CopyTo(finalPackStream);
+                }
+            }
 
-            //SharedFunctions.IfFileExistsDel(packDataFile);
-            //File.Move(packFile, oldPackFile);
-            //File.Move(newPackFile, packFile);
+            SharedFunctions.IfFileExistsDel(packDataFile);
+            File.Move(packFile, oldPackFile);
+            File.Move(newPackFile, packFile);
 
-            //Console.WriteLine($"Finished repacking files to '{Path.GetFileName(packFile)}' file");
+            Console.WriteLine("");
+            Console.WriteLine($"Finished repacking files to '{Path.GetFileName(packFile)}' file");
         }
     }
 }
