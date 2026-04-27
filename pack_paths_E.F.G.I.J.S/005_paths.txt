@@ -1,8 +1,0 @@
-cygames/glare/af_GlareSettings.json
-cygames/glare/am02_GlareSettings.json
-cygames/glare/ba_GlareSettings.json
-cygames/glare/ds_GlareSettings.json
-cygames/glare/ef_GlareSettings.json
-cygames/glare/fc_GlareSettings.json
-cygames/glare/GlareSettings.json
-cygames/glare/tr_GlareSettings.json

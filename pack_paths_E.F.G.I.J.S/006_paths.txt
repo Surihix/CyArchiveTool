@@ -1,8 +1,0 @@
-cygames/motion/dingo/dingo_anim_idle.mtnbin
-cygames/motion/human/dingo_anim_front.mtnbin
-cygames/motion/human/dingo_anim_idle.mtnbin
-cygames/motion/human/dingo_anim_idle_02.mtnbin
-cygames/motion/human/dingo_anim_left.mtnbin
-cygames/motion/human/dingo_anim_left_small.mtnbin
-cygames/motion/human/dingo_anim_right.mtnbin
-cygames/motion/human/dingo_anim_right_small.mtnbin
