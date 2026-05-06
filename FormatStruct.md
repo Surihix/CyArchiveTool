@@ -16,7 +16,7 @@
 | --- | --- | --- | --- |
 | 0x00 | 0x4  | UInt32 | Hash Entry Count, dividing this value by 2 should also return the File Count |
 | 0x4 | 0xC | UInt32[3] | Reserved, always null |
-| Hash Entry Table | 0x8 * Hash Entry Count | (#Hash Entry) | Hash Entries |
+| Hash Entry Table | 0x8 * Hash Entry Count | [Hash-Entry](#hash-entry) | Hash Entries |
 
 #### Hash Entry
 
