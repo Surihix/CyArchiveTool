@@ -5,7 +5,33 @@ namespace CyArchiveTool.Repack
 {
     internal class ZPACRepackHelpers
     {
-        public static void DataRepack(string unpackedDir, string vPath, FileEntry currentFileEntry, BinaryWriter fileDataWriter, ref FileEntryTable fileEntryTable, int index, ref bool isNullData)
+        public static byte[] EncryptFilePath(byte[] vPathData, uint pathHash)
+        {
+            var encPathData = new byte[224];
+            var xorValue = CygamesIVTable.IVs[pathHash & 0x3FF];
+            var dataIndex = 0;
+
+            for (int i = 0; i < vPathData.Length; i++)
+            {
+                var currentByte = vPathData[i];
+                encPathData[i] = (byte)(xorValue ^ currentByte);
+
+                xorValue = encPathData[i];
+                dataIndex++;
+            }
+
+            xorValue = encPathData[dataIndex - 1];
+
+            for (int i = dataIndex; i < encPathData.Length; i++)
+            {
+                encPathData[i] = (byte)(xorValue ^ CygamesIVTable.IVs[i]);
+                xorValue = encPathData[i];
+            }
+
+            return encPathData;
+        }
+
+        public static void DataRepack(string unpackedDir, string vPath, FileEntry currentFileEntry, BinaryWriter fileDataWriter, ref bool isNullData)
         {
             var outFile = Path.Combine(unpackedDir, vPath);
 
@@ -38,9 +64,8 @@ namespace CyArchiveTool.Repack
             currentFileEntry.DataOffset = (uint)fileDataWriter.BaseStream.Position;
             fileDataWriter.Write(dataToPack);
 
-            fileEntryTable.FileEntries[index] = currentFileEntry;
-
             var padAmount = ZPACHelpers.ComputePadding(fileDataWriter.BaseStream.Position, 16);
+            currentFileEntry.PaddingSize = (uint)padAmount;
 
             if (padAmount != 0)
             {

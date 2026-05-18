@@ -97,7 +97,7 @@ namespace CyArchiveTool
                 var currentFileEntry = new FileEntry()
                 {
                     CmpSize = packFileReader.ReadInt32(),
-                    UnkVal = packFileReader.ReadUInt32(),
+                    PaddingSize = packFileReader.ReadUInt32(),
                     UncmpSize = packFileReader.ReadInt32(),
                     DataOffset = packFileReader.ReadUInt32(),
                     CmpLevel = packFileReader.ReadUInt32(),
@@ -128,14 +128,8 @@ namespace CyArchiveTool
             return pathHash;
         }
 
-        private static Encoding? PathEncoding = CodePagesEncodingProvider.Instance.GetEncoding(932);
         public static string GetDecryptedPath(byte[] encFilePathData, uint pathHash)
         {
-            if (PathEncoding == null)
-            {
-                PathEncoding = Encoding.UTF8;
-            }
-
             var xorValue = CygamesIVTable.IVs[pathHash & 0x3FF];
             var decFilePathData = new byte[encFilePathData.Length];
             var length = 0;
@@ -154,7 +148,7 @@ namespace CyArchiveTool
                 length++;
             }
 
-            return PathEncoding.GetString(decFilePathData, 0, length);
+            return SharedFunctions.ShiftJISEncoding.GetString(decFilePathData, 0, length);
         }
     }
 }

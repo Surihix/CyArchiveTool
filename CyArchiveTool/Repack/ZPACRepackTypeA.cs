@@ -1,42 +1,60 @@
 ﻿using CyArchiveTool.Support;
+using CyArchiveTool.Support.Structures;
 using System.Text;
 
 namespace CyArchiveTool.Repack
 {
     internal class ZPACRepackTypeA
     {
-        public static void RepackFull(string packFile, string unpackedDir)
+        public static void RepackFull(string unpackedDir, bool shouldCompress)
         {
-            var packFileName = Path.GetFileNameWithoutExtension(packFile);
+            var packFileName = $"{Path.GetFileName(unpackedDir)}";
+            var packFile = Path.Combine(Path.GetDirectoryName(unpackedDir), $"{packFileName}.pack");
 
-            SharedFunctions.CheckIfFileFolderExists(packFile, true);
             SharedFunctions.CheckIfFileFolderExists(unpackedDir, false);
 
-            Console.WriteLine("Loading pack file....");
-            Console.WriteLine("");
+            var hashEntryTableCsvFile = Path.Combine(unpackedDir, $"#hash-entry-table.csv");
+            if (!File.Exists(hashEntryTableCsvFile))
+            {
+                SharedFunctions.ErrorExit($"Error: Missing '{Path.GetFileName(hashEntryTableCsvFile)}' file in unpacked directory!");
+            }
 
-            var zpacLoadData = ZPACFileLoader.LoadPackFile(packFile);
+            var pathTableCsvFile = Path.Combine(unpackedDir, $"#path-table.csv");
+            if (!File.Exists(pathTableCsvFile))
+            {
+                SharedFunctions.ErrorExit($"Error: Missing '{Path.GetFileName(pathTableCsvFile)}' file in unpacked directory!");
+            }
 
-            var zpacHeader = zpacLoadData.ZPACHeader;
-            var hashEntryTable = zpacLoadData.HashEntryTable;
-            var fileEntryTable = zpacLoadData.FileEntryTable;
+            var hashEntries = ZPACRepackCsvHelpers.GetHashEntriesFromCSV(hashEntryTableCsvFile);
+            var hashEntryTable = new HashEntryTable()
+            {
+                EntryCount = (uint)hashEntries.Length,
+                Reserved = new byte[12],
+                HashEntries = hashEntries
+            };
 
-            var newPackFile = packFile + ".new";
-            SharedFunctions.IfFileExistsDel(newPackFile);
+            var filePaths = ZPACRepackCsvHelpers.GetFilePathsFromCSV(pathTableCsvFile);
+            var fileEntryTable = new FileEntryTable()
+            {
+                FileCount = (uint)filePaths.Length,
+                Reserved = new byte[12]
+            };
 
-            var oldPackFile = packFile + ".old";
-            SharedFunctions.IfFileExistsDel(oldPackFile);
-
-            var packDataFile = packFile + "_data";
-            SharedFunctions.IfFileExistsDel(packDataFile);
+            var zpacHeader = new ZPACHeader()
+            {
+                Magic = "ZPAC",
+                Version = 1,
+                HashTableOffset = 16,
+                FileTableOffset = 16 + 16 + (hashEntryTable.EntryCount * 8)
+            };
 
             var headerData = new byte[16];
             using (var headerWriter = new BinaryWriter(new MemoryStream(headerData)))
             {
                 headerWriter.Write(Encoding.ASCII.GetBytes(zpacHeader.Magic));
-                headerWriter.WriteBytesUInt32(zpacHeader.Version, false);
-                headerWriter.WriteBytesUInt32(zpacHeader.HashTableOffset, false);
-                headerWriter.WriteBytesUInt32(zpacHeader.FileTableOffset, false);
+                headerWriter.Write(zpacHeader.Version);
+                headerWriter.Write(zpacHeader.HashTableOffset);
+                headerWriter.Write(zpacHeader.FileTableOffset);
             }
 
             var hashEntryTableData = new byte[(int)(hashEntryTable.EntryCount * 8) + 16];
@@ -54,19 +72,29 @@ namespace CyArchiveTool.Repack
                 }
             }
 
+            var packDataFile = packFile + "_data";
+            SharedFunctions.IfFileExistsDel(packDataFile);
+
             using (var fileDataWriter = new BinaryWriter(new FileStream(packDataFile, FileMode.Append, FileAccess.Write)))
             {
+                var fileEntries = new FileEntry[fileEntryTable.FileCount];
+
                 for (int i = 0; i < fileEntryTable.FileCount; i++)
                 {
-                    var currentFileEntry = fileEntryTable.FileEntries[i];
+                    var currentPathHash = ZPACFileLoader.GetPathHashByFileIndex(hashEntries, i);
+                    var vPath = filePaths[i];
+                    var vPathData = SharedFunctions.ShiftJISEncoding.GetBytes(vPath + "\0");
 
-                    var currentPathHash = ZPACFileLoader.GetPathHashByFileIndex(hashEntryTable.HashEntries, i);
-
-                    var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
-                    vPath = vPath.Replace("/", Core.PathSeparatorChar);
+                    var currentFileEntry = new FileEntry()
+                    {
+                        CmpLevel = (uint)(shouldCompress == true ? 1 : 0),
+                        EncFilePath = ZPACRepackHelpers.EncryptFilePath(vPathData, currentPathHash),
+                        Reserved = new byte[12]
+                    };
 
                     var isNullData = false;
-                    ZPACRepackHelpers.DataRepack(unpackedDir, vPath, currentFileEntry, fileDataWriter, ref fileEntryTable, i, ref isNullData);
+                    vPath = vPath.Replace("/", Core.PathSeparatorChar);
+                    ZPACRepackHelpers.DataRepack(unpackedDir, vPath, currentFileEntry, fileDataWriter, ref isNullData);
 
                     if (isNullData)
                     {
@@ -77,7 +105,11 @@ namespace CyArchiveTool.Repack
                     {
                         Console.WriteLine($"Repacked {Path.Combine(packFileName, vPath)}");
                     }
+
+                    fileEntries[i] = currentFileEntry;
                 }
+
+                fileEntryTable.FileEntries = fileEntries;
             }
 
             Console.WriteLine("");
@@ -87,12 +119,12 @@ namespace CyArchiveTool.Repack
             using (var fileEntryTableWriter = new BinaryWriter(new MemoryStream(fileEntryTableData)))
             {
                 fileEntryTableWriter.WriteBytesUInt32(fileEntryTable.FileCount, false);
-                fileEntryTableWriter.Write(hashEntryTable.Reserved);
+                fileEntryTableWriter.Write(fileEntryTable.Reserved);
 
                 foreach (var entry in fileEntryTable.FileEntries)
                 {
                     fileEntryTableWriter.WriteBytesInt32(entry.CmpSize, false);
-                    fileEntryTableWriter.WriteBytesUInt32(entry.UnkVal, false);
+                    fileEntryTableWriter.WriteBytesUInt32(entry.PaddingSize, false);
                     fileEntryTableWriter.WriteBytesInt32(entry.UncmpSize, false);
                     fileEntryTableWriter.WriteBytesUInt32(entry.DataOffset, false);
                     fileEntryTableWriter.WriteBytesUInt32(entry.CmpLevel, false);
@@ -103,6 +135,12 @@ namespace CyArchiveTool.Repack
 
             Console.WriteLine("");
             Console.WriteLine("Building finalized pack file....");
+
+            var newPackFile = packFile + ".new";
+            SharedFunctions.IfFileExistsDel(newPackFile);
+
+            var oldPackFile = packFile + ".old";
+            SharedFunctions.IfFileExistsDel(oldPackFile);
 
             using (var finalPackStream = new FileStream(newPackFile, FileMode.Append, FileAccess.Write))
             {

@@ -4,7 +4,7 @@ namespace CyArchiveTool.Unpack
 {
     internal class ZPACUnpackPaths
     {
-        public static void UnpackPaths(string packFile)
+        public static void UnpackPackTables(string packFile)
         {
             var packFileDir = Path.GetDirectoryName(packFile);
             var packFileName = Path.GetFileNameWithoutExtension(packFile);
@@ -19,17 +19,48 @@ namespace CyArchiveTool.Unpack
             var hashEntryTable = zpacLoadData.HashEntryTable;
             var fileEntryTable = zpacLoadData.FileEntryTable;
 
-            var packFilePathsFile = Path.Combine(packFileDir, $"{packFileName}_paths.txt");
+            Console.WriteLine("Writing HashEntryTable to csv file....");
+            Console.WriteLine("");
 
-            using (var packFilePathsWriter = new StreamWriter(packFilePathsFile, true, System.Text.Encoding.UTF8))
+            var hashEntryTableCsvFile = Path.Combine(packFileDir, $"{packFileName}_hash-entry-table.csv");
+            SharedFunctions.IfFileExistsDel(hashEntryTableCsvFile);
+
+            using (var hashTableWriter = new StreamWriter(hashEntryTableCsvFile, true))
             {
-                for (int i = 0; i < fileEntryTable.FileCount; i++)
-                {
-                    var currentFileEntry = fileEntryTable.FileEntries[i];
-                    var currentPathHash = ZPACFileLoader.GetPathHashByFileIndex(hashEntryTable.HashEntries, i);
-                    var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
+                hashTableWriter.WriteLine("PathHash,Flag,FileIndex");
 
-                    packFilePathsWriter.WriteLine(vPath);
+                foreach (var entry in hashEntryTable.HashEntries)
+                {
+                    hashTableWriter.WriteLine($"{entry.StrCode32Hash},{entry.UnkFlag},{entry.FileIndex}");
+                }
+            }
+
+            Console.WriteLine("Reading paths....");
+            Console.WriteLine("");
+
+            var filePaths = new string[fileEntryTable.FileCount];
+
+            for (int i = 0; i < fileEntryTable.FileCount; i++)
+            {
+                var currentFileEntry = fileEntryTable.FileEntries[i];
+                var currentPathHash = ZPACFileLoader.GetPathHashByFileIndex(hashEntryTable.HashEntries, i);
+                var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
+                filePaths[i] = vPath;
+            }
+
+            Console.WriteLine("Writing paths to csv file....");
+            Console.WriteLine("");
+
+            var pathTableCsvFile = Path.Combine(packFileDir, $"{packFileName}_path-table.csv");
+            SharedFunctions.IfFileExistsDel(pathTableCsvFile);
+
+            using (var pathsWriter = new StreamWriter(pathTableCsvFile, true))
+            {
+                pathsWriter.WriteLine("FileIndex,VirtualPath");
+
+                for (int i = 0; i < filePaths.Length; i++)
+                {
+                    pathsWriter.WriteLine($"{i},{filePaths[i]}");
                 }
             }
 

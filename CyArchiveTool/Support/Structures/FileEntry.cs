@@ -3,7 +3,7 @@
     internal class FileEntry
     {
         public int CmpSize;
-        public uint UnkVal;
+        public uint PaddingSize;
         public int UncmpSize;
         public uint DataOffset;
         public uint CmpLevel;

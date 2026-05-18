@@ -52,7 +52,6 @@ namespace CyArchiveTool.Unpack
             {
                 _ = packFileReader.BaseStream.Position = zpacLoadData.DataStartOffset;
 
-
                 for (int i = 0; i < fileEntryTable.FileCount; i++)
                 {
                     var currentFileEntry = fileEntryTable.FileEntries[i];
@@ -62,8 +61,9 @@ namespace CyArchiveTool.Unpack
                     var currentPathHash = ZPACFileLoader.GetPathHashByFileIndex(hashEntryTable.HashEntries, i);
 
                     var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
-                    vPath = vPath.Replace("/", pathSeparatorChar);
                     filePaths[i] = vPath;
+
+                    vPath = vPath.Replace("/", pathSeparatorChar);
 
                     ZPACUnpackHelpers.DataUnpack(unpackDir, vPath, packFileReader, currentFileEntry);
                     Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}");

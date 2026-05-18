@@ -39,6 +39,11 @@ namespace CyArchiveTool
 
                 var pathSeparatorChar = Path.DirectorySeparatorChar.ToString();
 
+                if (SharedFunctions.ShiftJISEncoding == null)
+                {
+                    SharedFunctions.ShiftJISEncoding = System.Text.Encoding.UTF8;
+                }
+
                 switch (toolActionSwitch)
                 {
                     case ToolActionSwitches.u:
@@ -59,16 +64,22 @@ namespace CyArchiveTool
                         ZPACUnpackTypeC.UnpackDirectory(args[1], args[2], pathSeparatorChar);
                         break;
 
-                    case ToolActionSwitches.up:
+                    case ToolActionSwitches.ut:
                         CheckArgsLength(args, 2);
 
-                        ZPACUnpackPaths.UnpackPaths(args[1]);
+                        ZPACUnpackPaths.UnpackPackTables(args[1]);
                         break;
 
                     case ToolActionSwitches.r:
-                        CheckArgsLength(args, 3);
+                        CheckArgsLength(args, 2);
 
-                        ZPACRepackTypeA.RepackFull(args[1], args[2]);
+                        ZPACRepackTypeA.RepackFull(args[1], true);
+                        break;
+
+                    case ToolActionSwitches.rc:
+                        CheckArgsLength(args, 2);
+
+                        ZPACRepackTypeA.RepackFull(args[1], false);
                         break;
                 }
             }
@@ -97,8 +108,11 @@ namespace CyArchiveTool
             u,
             uaf,
             uad,
-            up,
-            r
+            ut,
+            r,
+            rc,
+            raf,
+            rad
         }
     }
 }
