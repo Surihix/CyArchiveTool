@@ -26,7 +26,6 @@ namespace CyArchiveTool.Unpack
             var hashEntryTable = zpacLoadData.HashEntryTable;
             var fileEntryTable = zpacLoadData.FileEntryTable;
 
-            int duplicateCounter = 0;
             bool hasExtracted = false;
 
             using (var packFileReader = new BinaryReader(new FileStream(packFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
@@ -62,7 +61,7 @@ namespace CyArchiveTool.Unpack
 
                     if (assembledDirFixed == virtualDirectory)
                     {
-                        ZPACUnpackHelpers.DataUnpack(unpackDir, vPath, ref duplicateCounter, packFileReader, currentFileEntry);
+                        ZPACUnpackHelpers.DataUnpack(unpackDir, vPath, packFileReader, currentFileEntry);
                         hasExtracted = true;
 
                         Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}");
@@ -75,11 +74,6 @@ namespace CyArchiveTool.Unpack
             if (hasExtracted)
             {
                 Console.WriteLine($"Finished unpacking specificed directory from '{Path.GetFileName(packFile)}' file");
-
-                if (duplicateCounter > 1)
-                {
-                    Console.WriteLine($"{duplicateCounter} duplicate file(s)");
-                }
             }
             else
             {

@@ -30,11 +30,28 @@ namespace CyArchiveTool.Unpack
             var hashEntryTable = zpacLoadData.HashEntryTable;
             var fileEntryTable = zpacLoadData.FileEntryTable;
 
-            int duplicateCounter = 0;
+            Console.WriteLine("Writing hash table to csv file....");
+            Console.WriteLine("");
+
+            var hashTableCsvFile = Path.Combine(unpackDir, "#hash-table.csv");
+            SharedFunctions.IfFileExistsDel(hashTableCsvFile);
+
+            using (var hashTableWriter = new StreamWriter(hashTableCsvFile, true))
+            {
+                hashTableWriter.WriteLine("PathHash,Flag,FileIndex");
+
+                foreach (var entry in hashEntryTable.HashEntries)
+                {
+                    hashTableWriter.WriteLine($"{entry.StrCode32Hash},{entry.UnkFlag},{entry.FileIndex}");
+                }
+            }
+
+            var filePaths = new string[fileEntryTable.FileCount];
 
             using (var packFileReader = new BinaryReader(new FileStream(packFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
                 _ = packFileReader.BaseStream.Position = zpacLoadData.DataStartOffset;
+
 
                 for (int i = 0; i < fileEntryTable.FileCount; i++)
                 {
@@ -46,19 +63,31 @@ namespace CyArchiveTool.Unpack
 
                     var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
                     vPath = vPath.Replace("/", pathSeparatorChar);
+                    filePaths[i] = vPath;
 
-                    ZPACUnpackHelpers.DataUnpack(unpackDir, vPath, ref duplicateCounter, packFileReader, currentFileEntry);
+                    ZPACUnpackHelpers.DataUnpack(unpackDir, vPath, packFileReader, currentFileEntry);
                     Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}");
                 }
             }
 
             Console.WriteLine("");
-            Console.WriteLine($"Finished unpacking '{Path.GetFileName(packFile)}' file");
+            Console.WriteLine("Writing paths to csv file....");
+            Console.WriteLine("");
 
-            if (duplicateCounter > 1)
+            var pathsCsvFile = Path.Combine(unpackDir, "#paths.csv");
+            SharedFunctions.IfFileExistsDel(pathsCsvFile);
+
+            using (var pathsWriter = new StreamWriter(pathsCsvFile, true))
             {
-                Console.WriteLine($"{duplicateCounter} duplicate file(s)");
+                pathsWriter.WriteLine("FileIndex,VirtualPath");
+
+                for (int i = 0; i < filePaths.Length; i++)
+                {
+                    pathsWriter.WriteLine($"{i},{filePaths[i]}");
+                }
             }
+
+            Console.WriteLine($"Finished unpacking '{Path.GetFileName(packFile)}' file");
         }
     }
 }

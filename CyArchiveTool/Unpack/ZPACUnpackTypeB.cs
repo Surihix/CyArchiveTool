@@ -23,7 +23,6 @@
             var hashEntryTable = zpacLoadData.HashEntryTable;
             var fileEntryTable = zpacLoadData.FileEntryTable;
 
-            int duplicateCounter = 0;
             bool hasExtracted = false;
 
             using (var packFileReader = new BinaryReader(new FileStream(packFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
@@ -43,7 +42,7 @@
 
                     if (vPath == virtualFilePath)
                     {
-                        ZPACUnpackHelpers.DataUnpack(unpackDir, vPath, ref duplicateCounter, packFileReader, currentFileEntry);
+                        ZPACUnpackHelpers.DataUnpack(unpackDir, vPath, packFileReader, currentFileEntry);
                         hasExtracted = true;
 
                         Console.WriteLine($"Unpacked {Path.Combine(packFileName, $"{vPath}")}");
@@ -56,11 +55,6 @@
             if (hasExtracted)
             {
                 Console.WriteLine($"Finished unpacking specificed file from '{Path.GetFileName(packFile)}' file");
-
-                if (duplicateCounter > 1)
-                {
-                    Console.WriteLine($"{duplicateCounter} duplicate file(s)");
-                }
             }
             else
             {

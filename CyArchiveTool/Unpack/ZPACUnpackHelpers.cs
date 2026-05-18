@@ -5,7 +5,7 @@ namespace CyArchiveTool.Unpack
 {
     internal class ZPACUnpackHelpers
     {
-        public static void DataUnpack(string unpackDir, string vPath, ref int duplicateCounter, BinaryReader packFileReader, FileEntry fileEntry)
+        public static void DataUnpack(string unpackDir, string vPath, BinaryReader packFileReader, FileEntry fileEntry)
         {
             var outFile = Path.Combine(unpackDir, vPath);
             var outFileDir = Path.GetDirectoryName(outFile);
@@ -18,7 +18,6 @@ namespace CyArchiveTool.Unpack
             if (File.Exists(outFile))
             {
                 File.Delete(outFile);
-                duplicateCounter++;
             }
 
             var fileDataInPack = packFileReader.ReadBytes(fileEntry.CmpSize);
