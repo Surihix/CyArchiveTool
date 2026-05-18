@@ -30,13 +30,13 @@ namespace CyArchiveTool.Unpack
             var hashEntryTable = zpacLoadData.HashEntryTable;
             var fileEntryTable = zpacLoadData.FileEntryTable;
 
-            Console.WriteLine("Writing hash table to csv file....");
+            Console.WriteLine("Writing HashEntryTable to csv file....");
             Console.WriteLine("");
 
-            var hashTableCsvFile = Path.Combine(unpackDir, "#hash-table.csv");
-            SharedFunctions.IfFileExistsDel(hashTableCsvFile);
+            var hashEntryTableCsvFile = Path.Combine(unpackDir, "#hash-entry-table.csv");
+            SharedFunctions.IfFileExistsDel(hashEntryTableCsvFile);
 
-            using (var hashTableWriter = new StreamWriter(hashTableCsvFile, true))
+            using (var hashTableWriter = new StreamWriter(hashEntryTableCsvFile, true))
             {
                 hashTableWriter.WriteLine("PathHash,Flag,FileIndex");
 
