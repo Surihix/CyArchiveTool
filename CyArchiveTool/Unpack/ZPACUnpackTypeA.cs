@@ -74,10 +74,10 @@ namespace CyArchiveTool.Unpack
             Console.WriteLine("Writing paths to csv file....");
             Console.WriteLine("");
 
-            var pathsCsvFile = Path.Combine(unpackDir, "#paths.csv");
-            SharedFunctions.IfFileExistsDel(pathsCsvFile);
+            var pathTableCsvFile = Path.Combine(unpackDir, "#path-table.csv");
+            SharedFunctions.IfFileExistsDel(pathTableCsvFile);
 
-            using (var pathsWriter = new StreamWriter(pathsCsvFile, true))
+            using (var pathsWriter = new StreamWriter(pathTableCsvFile, true))
             {
                 pathsWriter.WriteLine("FileIndex,VirtualPath");
 
