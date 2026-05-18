@@ -31,7 +31,7 @@ namespace CyArchiveTool.Repack
             return encPathData;
         }
 
-        public static void DataRepack(string unpackedDir, string vPath, FileEntry currentFileEntry, BinaryWriter fileDataWriter, ref bool isNullData)
+        public static void DataRepack(string unpackedDir, string vPath, FileEntry currentFileEntry, FileStream fileDataStream, ref bool isNullData)
         {
             var outFile = Path.Combine(unpackedDir, vPath);
 
@@ -61,15 +61,16 @@ namespace CyArchiveTool.Repack
 
             currentFileEntry.CmpSize = dataToPack.Length;
             currentFileEntry.UncmpSize = fileData.Length;
-            currentFileEntry.DataOffset = (uint)fileDataWriter.BaseStream.Position;
-            fileDataWriter.Write(dataToPack);
+            currentFileEntry.DataOffset = (uint)fileDataStream.Position;
+            fileDataStream.Write(dataToPack, 0, currentFileEntry.CmpSize);
 
-            var padAmount = ZPACHelpers.ComputePadding(fileDataWriter.BaseStream.Position, 16);
+            var padAmount = ZPACHelpers.ComputePadding(fileDataStream.Position, 16);
             currentFileEntry.PaddingSize = (uint)padAmount;
 
             if (padAmount != 0)
             {
-                fileDataWriter.Write(new byte[padAmount]);
+                var paddingData = new byte[padAmount];
+                fileDataStream.Write(paddingData, 0, paddingData.Length);
             }
         }
     }

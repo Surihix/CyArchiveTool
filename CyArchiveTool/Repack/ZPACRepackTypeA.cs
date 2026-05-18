@@ -75,7 +75,7 @@ namespace CyArchiveTool.Repack
             var packDataFile = packFile + "_data";
             SharedFunctions.IfFileExistsDel(packDataFile);
 
-            using (var fileDataWriter = new BinaryWriter(new FileStream(packDataFile, FileMode.Append, FileAccess.Write)))
+            using (var fileDataStream = new FileStream(packDataFile, FileMode.Append, FileAccess.Write))
             {
                 var fileEntries = new FileEntry[fileEntryTable.FileCount];
 
@@ -94,7 +94,7 @@ namespace CyArchiveTool.Repack
 
                     var isNullData = false;
                     vPath = vPath.Replace("/", Core.PathSeparatorChar);
-                    ZPACRepackHelpers.DataRepack(unpackedDir, vPath, currentFileEntry, fileDataWriter, ref isNullData);
+                    ZPACRepackHelpers.DataRepack(unpackedDir, vPath, currentFileEntry, fileDataStream, ref isNullData);
 
                     if (isNullData)
                     {

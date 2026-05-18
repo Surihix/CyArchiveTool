@@ -5,12 +5,15 @@ namespace CyArchiveTool.Repack
 {
     internal class ZPACRepackTypeB
     {
-        public static void RepackSingle(string packFile, string unpackedDir)
+        public static void RepackSingle(string packFile, string unpackedDir, string specifiedFileVPath)
         {
             var packFileName = Path.GetFileNameWithoutExtension(packFile);
 
             SharedFunctions.CheckIfFileFolderExists(packFile, true);
             SharedFunctions.CheckIfFileFolderExists(unpackedDir, false);
+
+            var specifiedFilePath = Path.Combine(unpackedDir, specifiedFileVPath);
+            SharedFunctions.CheckIfFileFolderExists(specifiedFilePath, true);
 
             Console.WriteLine("Loading pack file....");
             Console.WriteLine("");
@@ -21,14 +24,17 @@ namespace CyArchiveTool.Repack
             var hashEntryTable = zpacLoadData.HashEntryTable;
             var fileEntryTable = zpacLoadData.FileEntryTable;
 
-            var newPackFile = packFile + ".new";
-            SharedFunctions.IfFileExistsDel(newPackFile);
-
-            var oldPackFile = packFile + ".old";
-            SharedFunctions.IfFileExistsDel(oldPackFile);
-
             var packDataFile = packFile + "_data";
             SharedFunctions.IfFileExistsDel(packDataFile);
+
+            using (var packFileStream = new FileStream(packFile, FileMode.Open, FileAccess.Read))
+            {
+                using (var packFileDataStream = new FileStream(packDataFile, FileMode.Append, FileAccess.Write))
+                {
+                    _ = packFileStream.Seek(zpacLoadData.DataStartOffset, SeekOrigin.Begin);
+                    packFileStream.CopyTo(packFileDataStream);
+                }
+            }
 
             var headerData = new byte[16];
             using (var headerWriter = new BinaryWriter(new MemoryStream(headerData)))
@@ -54,28 +60,25 @@ namespace CyArchiveTool.Repack
                 }
             }
 
-            using (var fileDataWriter = new BinaryWriter(new FileStream(packDataFile, FileMode.Append, FileAccess.Write)))
+            using (var fileDataStream = new FileStream(packDataFile, FileMode.Append, FileAccess.Write))
             {
                 for (int i = 0; i < fileEntryTable.FileCount; i++)
                 {
                     var currentFileEntry = fileEntryTable.FileEntries[i];
-
                     var currentPathHash = ZPACFileLoader.GetPathHashByFileIndex(hashEntryTable.HashEntries, i);
 
                     var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
                     vPath = vPath.Replace("/", Core.PathSeparatorChar);
 
-                    var isNullData = false;
-                    ZPACRepackHelpers.DataRepack(unpackedDir, vPath, currentFileEntry, fileDataWriter, ref isNullData);
-
-                    if (isNullData)
+                    if (vPath == specifiedFileVPath)
                     {
-                        Console.WriteLine($"Unable to locate file. added null data!");
-                    }
+                        var isNullData = false;
+                        ZPACRepackHelpers.DataRepack(unpackedDir, vPath, currentFileEntry, fileDataStream, ref isNullData);
 
-                    if (!isNullData)
-                    {
-                        Console.WriteLine($"Repacked {Path.Combine(packFileName, vPath)}");
+                        if (!isNullData)
+                        {
+                            Console.WriteLine($"Repacked {Path.Combine(packFileName, vPath)}");
+                        }
                     }
                 }
             }
@@ -103,6 +106,12 @@ namespace CyArchiveTool.Repack
 
             Console.WriteLine("");
             Console.WriteLine("Building finalized pack file....");
+
+            var newPackFile = packFile + ".new";
+            SharedFunctions.IfFileExistsDel(newPackFile);
+
+            var oldPackFile = packFile + ".old";
+            SharedFunctions.IfFileExistsDel(oldPackFile);
 
             using (var finalPackStream = new FileStream(newPackFile, FileMode.Append, FileAccess.Write))
             {

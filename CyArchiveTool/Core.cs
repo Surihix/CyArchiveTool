@@ -81,6 +81,20 @@ namespace CyArchiveTool
 
                         ZPACRepackTypeA.RepackFull(args[1], false);
                         break;
+
+                    case ToolActionSwitches.raf:
+                        CheckArgsLength(args, 4);
+
+                        Console.WriteLine("unimplemented");
+                        //ZPACRepackTypeB.RepackSingle(args[1], args[2], args[3]);
+                        break;
+
+                    case ToolActionSwitches.rad:
+                        CheckArgsLength(args, 4);
+
+                        Console.WriteLine("unimplemented");
+                        //ZPACRepackTypeC.RepackMultiple(args[1], args[2], args[3]);
+                        break;
                 }
             }
             catch (Exception ex)
