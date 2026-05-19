@@ -1,8 +1,9 @@
 ﻿namespace CyArchiveTool.Support.Structures
 {
-    internal class FileEntryTableHeader
+    internal class FileEntryTable
     {
         public uint FileCount;
         public byte[]? Reserved;
+        public FileEntry[]? FileEntries;
     }
 }

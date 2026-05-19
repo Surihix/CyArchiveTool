@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using static CyArchiveTool.Support.Enumerators;
 
 namespace CyArchiveTool.Support
 {
@@ -14,23 +13,22 @@ namespace CyArchiveTool.Support
             Environment.Exit(0);
         }
 
-        public static void CheckIfFileFolderExists(string fileFolder, CheckType checkType)
+        public static void CheckIfFileFolderExists(string fileFolder, bool isFile)
         {
-            switch (checkType)
+            if (isFile)
             {
-                case CheckType.file:
-                    if (!File.Exists(fileFolder))
-                    {
-                        ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' file does not exist");
-                    }
-                    break;
+                if (!File.Exists(fileFolder))
+                {
+                    ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' file does not exist");
+                }
+            }
 
-                case CheckType.folder:
-                    if (!Directory.Exists(fileFolder))
-                    {
-                        ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' directory does not exist");
-                    }
-                    break;
+            if (!isFile)
+            {
+                if (!Directory.Exists(fileFolder))
+                {
+                    ErrorExit($"Error: Specified '{Path.GetFileName(fileFolder)}' directory does not exist");
+                }
             }
         }
 
@@ -42,10 +40,27 @@ namespace CyArchiveTool.Support
             }
         }
 
-        public static string UTF8toShiftJIS(string utf8StringVal)
+        public static bool MatchDirectory(string vPath, string pathSeparatorChar, string virtualDirectory)
         {
-            var convertedPathData = Encoding.Convert(Encoding.UTF8, ShiftJISEncoding, Encoding.UTF8.GetBytes(utf8StringVal));
-            return ShiftJISEncoding.GetString(convertedPathData);
+            var isMatchingDir = false;
+
+            var filePathDirData = vPath.Split(pathSeparatorChar);
+            var assembledDir = new StringBuilder();
+
+            foreach (var dir in filePathDirData)
+            {
+                assembledDir.Append(dir);
+                assembledDir.Append(pathSeparatorChar);
+                var assembledDirFixed = assembledDir.ToString();
+
+                if (assembledDirFixed == virtualDirectory)
+                {
+                    isMatchingDir = true;
+                    break;
+                }
+            }
+
+            return isMatchingDir;
         }
     }
 }

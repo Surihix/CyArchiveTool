@@ -6,8 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Copyright>Copyright © Surihix 2026</Copyright>
-    <FileVersion>1.0.0.7</FileVersion>
-    <AssemblyVersion>1.0.0.7</AssemblyVersion>
+    <FileVersion>1.0.0.8</FileVersion>
+    <AssemblyVersion>1.0.0.8</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

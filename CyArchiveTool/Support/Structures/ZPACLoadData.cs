@@ -3,10 +3,8 @@
     internal class ZPACLoadData
     {
         public ZPACHeader? ZPACHeader;
-        public HashEntryTableHeader? HashEntryTableHeader;
-        public HashEntry[]? HashEntryTable;
-        public FileEntryTableHeader? FileEntryTableHeader;
-        public FileEntry[]? FileEntryTable;
+        public HashEntryTable? HashEntryTable;
+        public FileEntryTable? FileEntryTable;
         public long DataStartOffset;
     }
 }
