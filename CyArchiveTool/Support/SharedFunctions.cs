@@ -40,10 +40,27 @@ namespace CyArchiveTool.Support
             }
         }
 
-        public static string UTF8toShiftJIS(string utf8StringVal)
+        public static bool MatchDirectory(string vPath, string pathSeparatorChar, string virtualDirectory)
         {
-            var convertedPathData = Encoding.Convert(Encoding.UTF8, ShiftJISEncoding, Encoding.UTF8.GetBytes(utf8StringVal));
-            return ShiftJISEncoding.GetString(convertedPathData);
+            var isMatchingDir = false;
+
+            var filePathDirData = vPath.Split(pathSeparatorChar);
+            var assembledDir = new StringBuilder();
+
+            foreach (var dir in filePathDirData)
+            {
+                assembledDir.Append(dir);
+                assembledDir.Append(pathSeparatorChar);
+                var assembledDirFixed = assembledDir.ToString();
+
+                if (assembledDirFixed == virtualDirectory)
+                {
+                    isMatchingDir = true;
+                    break;
+                }
+            }
+
+            return isMatchingDir;
         }
     }
 }

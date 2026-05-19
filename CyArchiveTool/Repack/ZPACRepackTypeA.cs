@@ -6,7 +6,7 @@ namespace CyArchiveTool.Repack
 {
     internal class ZPACRepackTypeA
     {
-        public static void RepackFull(string unpackedDir, bool shouldCompress)
+        public static void RepackFull(string unpackedDir, bool shouldCompress, string pathSeparatorChar)
         {
             var packFileName = $"{Path.GetFileName(unpackedDir)}";
             var packFile = Path.Combine(Path.GetDirectoryName(unpackedDir), $"{packFileName}.pack");
@@ -93,7 +93,7 @@ namespace CyArchiveTool.Repack
                     };
 
                     var isNullData = false;
-                    vPath = vPath.Replace("/", Core.PathSeparatorChar);
+                    vPath = vPath.Replace("/", pathSeparatorChar);
                     ZPACRepackHelpers.DataRepack(unpackedDir, vPath, currentFileEntry, fileDataStream, ref isNullData);
 
                     if (isNullData)

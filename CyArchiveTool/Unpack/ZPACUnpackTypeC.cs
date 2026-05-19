@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using CyArchiveTool.Support;
 
 namespace CyArchiveTool.Unpack
 {
@@ -8,6 +8,7 @@ namespace CyArchiveTool.Unpack
         {
             virtualDirectory = virtualDirectory.Replace("*", "");
             virtualDirectory = virtualDirectory.Replace("/", pathSeparatorChar);
+            virtualDirectory = virtualDirectory.Replace("\\", pathSeparatorChar);
 
             var packFileDir = Path.GetDirectoryName(packFile);
             var packFileName = Path.GetFileNameWithoutExtension(packFile);
@@ -26,6 +27,8 @@ namespace CyArchiveTool.Unpack
             var hashEntryTable = zpacLoadData.HashEntryTable;
             var fileEntryTable = zpacLoadData.FileEntryTable;
 
+            Console.WriteLine("Unpacking....");
+
             bool hasExtracted = false;
 
             using (var packFileReader = new BinaryReader(new FileStream(packFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
@@ -43,23 +46,9 @@ namespace CyArchiveTool.Unpack
                     var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
                     vPath = vPath.Replace("/", pathSeparatorChar);
 
-                    var filePathDirData = vPath.Split(pathSeparatorChar);
-                    var assembledDir = new StringBuilder();
-                    var assembledDirFixed = string.Empty;
+                    var isMatchingDirectory = SharedFunctions.MatchDirectory(vPath, pathSeparatorChar, virtualDirectory);
 
-                    foreach (var dir in filePathDirData)
-                    {
-                        assembledDir.Append(dir);
-                        assembledDir.Append(pathSeparatorChar);
-                        assembledDirFixed = assembledDir.ToString();
-
-                        if (assembledDirFixed == virtualDirectory)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (assembledDirFixed == virtualDirectory)
+                    if (isMatchingDirectory)
                     {
                         ZPACUnpackHelpers.DataUnpack(unpackDir, vPath, packFileReader, currentFileEntry);
                         hasExtracted = true;

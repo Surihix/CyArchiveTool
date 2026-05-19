@@ -4,6 +4,7 @@
     {
         public static void UnpackSingle(string packFile, string virtualFilePath, string pathSeparatorChar)
         {
+            virtualFilePath = virtualFilePath.Replace("/", pathSeparatorChar);
             virtualFilePath = virtualFilePath.Replace("\\", pathSeparatorChar);
 
             var packFileDir = Path.GetDirectoryName(packFile);
@@ -23,6 +24,8 @@
             var hashEntryTable = zpacLoadData.HashEntryTable;
             var fileEntryTable = zpacLoadData.FileEntryTable;
 
+            Console.WriteLine("Unpacking....");
+
             bool hasExtracted = false;
 
             using (var packFileReader = new BinaryReader(new FileStream(packFile, FileMode.Open, FileAccess.Read, FileShare.Read)))
@@ -38,7 +41,7 @@
                     var currentPathHash = ZPACFileLoader.GetPathHashByFileIndex(hashEntryTable.HashEntries, i);
 
                     var vPath = ZPACFileLoader.GetDecryptedPath(currentFileEntry.EncFilePath, currentPathHash);
-                    vPath = vPath.Replace("/", Core.PathSeparatorChar);
+                    vPath = vPath.Replace("/", pathSeparatorChar);
 
                     if (vPath == virtualFilePath)
                     {

@@ -38,6 +38,13 @@ namespace CyArchiveTool.Repack
             var fileData = Array.Empty<byte>();
             var dataToPack = Array.Empty<byte>();
 
+            var fileOffset = fileDataStream.Length;
+
+            if (fileOffset > uint.MaxValue)
+            {
+                SharedFunctions.ErrorExit("Error: pack file size is more than 4gb. repacking aborted!");
+            }
+
             if (File.Exists(outFile))
             {
                 fileData = File.ReadAllBytes(outFile);
@@ -61,10 +68,10 @@ namespace CyArchiveTool.Repack
 
             currentFileEntry.CmpSize = dataToPack.Length;
             currentFileEntry.UncmpSize = fileData.Length;
-            currentFileEntry.DataOffset = (uint)fileDataStream.Position;
+            currentFileEntry.DataOffset = (uint)fileOffset;
             fileDataStream.Write(dataToPack, 0, currentFileEntry.CmpSize);
 
-            var padAmount = ZPACHelpers.ComputePadding(fileDataStream.Position, 16);
+            var padAmount = ComputePadding(fileDataStream.Position, 16);
             currentFileEntry.PaddingSize = (uint)padAmount;
 
             if (padAmount != 0)
@@ -72,6 +79,22 @@ namespace CyArchiveTool.Repack
                 var paddingData = new byte[padAmount];
                 fileDataStream.Write(paddingData, 0, paddingData.Length);
             }
+        }
+
+        private static long ComputePadding(long position, int padWidth)
+        {
+            long padAmount = 0;
+
+            if (position % padWidth != 0)
+            {
+                var remainder = position % padWidth;
+                var increaseBytes = padWidth - remainder;
+
+                var newPos = position + increaseBytes;
+                padAmount = newPos - position;
+            }
+
+            return padAmount;
         }
     }
 }

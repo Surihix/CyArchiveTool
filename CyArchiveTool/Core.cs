@@ -6,7 +6,6 @@ namespace CyArchiveTool
 {
     internal class Core
     {
-        public static readonly string PathSeparatorChar = Path.DirectorySeparatorChar.ToString();
         static void Main(string[] args)
         {
             try
@@ -71,29 +70,22 @@ namespace CyArchiveTool
                         break;
 
                     case ToolActionSwitches.r:
-                        CheckArgsLength(args, 2);
-
-                        ZPACRepackTypeA.RepackFull(args[1], true);
-                        break;
-
                     case ToolActionSwitches.rc:
                         CheckArgsLength(args, 2);
 
-                        ZPACRepackTypeA.RepackFull(args[1], false);
+                        ZPACRepackTypeA.RepackFull(args[1], toolActionSwitch == ToolActionSwitches.r, pathSeparatorChar);
                         break;
 
                     case ToolActionSwitches.raf:
                         CheckArgsLength(args, 4);
 
-                        Console.WriteLine("unimplemented");
-                        //ZPACRepackTypeB.RepackSingle(args[1], args[2], args[3]);
+                        ZPACRepackTypeB.RepackSingle(args[1], args[2], args[3], pathSeparatorChar);
                         break;
 
                     case ToolActionSwitches.rad:
                         CheckArgsLength(args, 4);
 
-                        Console.WriteLine("unimplemented");
-                        //ZPACRepackTypeC.RepackMultiple(args[1], args[2], args[3]);
+                        ZPACRepackTypeC.RepackMultiple(args[1], args[2], args[3], pathSeparatorChar);
                         break;
                 }
             }
