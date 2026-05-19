@@ -40,7 +40,7 @@ namespace CyArchiveTool
 
                 if (SharedFunctions.ShiftJISEncoding == null)
                 {
-                    SharedFunctions.ShiftJISEncoding = System.Text.Encoding.UTF8;
+                    SharedFunctions.ErrorExit("Error: Failed to apply encoding. please report this issue on github!");
                 }
 
                 switch (toolActionSwitch)
