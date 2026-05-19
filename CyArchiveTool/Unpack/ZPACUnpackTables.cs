@@ -2,7 +2,7 @@
 
 namespace CyArchiveTool.Unpack
 {
-    internal class ZPACUnpackPaths
+    internal class ZPACUnpackTables
     {
         public static void UnpackPackTables(string packFile)
         {

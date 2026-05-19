@@ -9,6 +9,7 @@
             Console.WriteLine("-u = Unpack a .pack file");
             Console.WriteLine("-uaf = Unpack a single file from a pack file");
             Console.WriteLine("-uad = Unpacks a specific directory along with sub directories, from a pack file");
+            Console.WriteLine("-ut = Unpacks the hash entry table and the file paths from a pack file");
             Console.WriteLine("-r = Repack an unpacked folder to a pack file. files are packed uncompressed.");
             Console.WriteLine("-rc = Repack an unpacked folder to a pack file. files are packed compressed.");
             Console.WriteLine("-raf = Repack a single file into a pack file");

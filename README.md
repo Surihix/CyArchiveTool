@@ -6,6 +6,7 @@ This small program allows you to unpack and repack the .pack archive files that 
 - ``-u`` Unpacks all files stored in a pack file
 - ``-uaf`` Unpacks a specific file stored in a pack file
 - ``-uad`` Unpacks a specific directory along with sub directories, stored in the pack file. specify the `*` character, after the last path separator in the path.
+- ``-ut`` Unpacks the hash entry table and the file paths from a pack file
 - ``-r`` Repacks a folder containing valid extracted files to a pack file. files are packed uncompressed.
 - ``-rc`` Same as ``-r`` swtich, but the files are packed compressed
 - ``-raf`` Repack a single file into a pack file. file will be appended at the end of the pack file and will be packed, depending on how the original file is packed.

@@ -66,7 +66,7 @@ namespace CyArchiveTool
                     case ToolActionSwitches.ut:
                         CheckArgsLength(args, 2);
 
-                        ZPACUnpackPaths.UnpackPackTables(args[1]);
+                        ZPACUnpackTables.UnpackPackTables(args[1]);
                         break;
 
                     case ToolActionSwitches.r:
