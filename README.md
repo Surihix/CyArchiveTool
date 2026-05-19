@@ -6,7 +6,10 @@ This small program allows you to unpack and repack the .pack archive files that 
 <br>``-u`` Unpacks all files stored in a pack file
 <br>``-uaf`` Unpacks a specific file stored in a pack file
 <br>``-uad`` Unpacks a specific directory along with sub directories, stored in the pack file
-<br>``-r`` Repacks a folder containing valid extracted files into a pack file
+<br>``-r`` Repacks a folder containing valid extracted files to a pack file. files are packed uncompressed
+<br>``-rc`` Same as ``-r`` action, but the files are packed compressed
+<br>``-raf`` Repack a single file into a pack file. file will be appended at the end of the pack file and will be packed, depending on the original file.
+<br>``-rad`` Repacks a specific directory along with sub directories containing files, into a pack file. files will be packed, just like how its done in the ``-raf`` action");
 <br>``-?`` or ``-h`` Display the help page
 <br>
 
